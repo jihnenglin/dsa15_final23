@@ -16,7 +16,7 @@ enum {GET, CLICKED, IMPRESSED, PROFIT, QUIT};
 typedef struct datas{
 	int Click, Impression, AdID, AdvertiserID, Depth, Position, QueryID,
 		KeywordID, TitleID, DescriptionID, UserID;
-	char DisplayURL[21];
+	unsigned long long DisplayURL;
 } Datas;
 
 using namespace std;
@@ -89,9 +89,9 @@ vector<int> conjunction(vector<int> &AdIDarray1, vector<int> &AdIDarray2){
 }
 
 int dummycmp(Dummy d1, Dummy d2){
-	if(strcmp(d1.DisplayURL, d2.DisplayURL) < 0)
+	if(d1.DisplayURL < d2.DisplayURL)
 		return true;
-	else if(strcmp(d1.DisplayURL, d2.DisplayURL) > 0)
+	else if(d1.DisplayURL > d2.DisplayURL)
 		return false;
 	else if(d1.AdvertiserID < d2.AdvertiserID)
 		return true;
@@ -114,13 +114,13 @@ int dummycmp(Dummy d1, Dummy d2){
 }
 
 void printDummy(Dummy &d){
-	printf("\t%s %d %d %d %d\n", 
+	printf("\t%llu %d %d %d %d\n", 
 	d.DisplayURL, d.AdvertiserID, d.KeywordID, d.TitleID, d.DescriptionID);
 	return;
 }
 
 bool sameDummy(Dummy &d1, Dummy &d2){
-	if(strcmp(d1.DisplayURL, d2.DisplayURL) != 0)
+	if(d1.DisplayURL != d2.DisplayURL)
 		return false;
 	else if(d1.AdvertiserID != d2.AdvertiserID)
 		return false;
@@ -230,8 +230,7 @@ void processIMPRESSED(USER *userArray){
 	
 	cout << "********************" << endl;
 	for(int i = 0; i < (int)matchAdID.size(); i++){
-	
-	cout << matchAdID[i] << endl;
+		cout << matchAdID[i] << endl;
 		userArray[u1].printdummy(dummyArray1, matchAdID[i]);
 		userArray[u2].printdummy(dummyArray2, matchAdID[i]);
 		sort(dummyArray1.begin(), dummyArray1.end(), dummycmp);
@@ -264,7 +263,7 @@ int main(int argc, char **argv){
 	Datas temp; Data dtemp;
 	int n = 0;
 
-	while(fscanf(fp, "%d%d%s%d%d%d%d%d%d%d%d%d", &temp.Click, &temp.Impression, temp.DisplayURL, &temp.AdID,
+	while(fscanf(fp, "%d%d%llu%d%d%d%d%d%d%d%d%d", &temp.Click, &temp.Impression, &temp.DisplayURL, &temp.AdID,
 			&temp.AdvertiserID, &temp.Depth, &temp.Position, &temp.QueryID,	&temp.KeywordID, &temp.TitleID,
 			&temp.DescriptionID, &temp.UserID) != EOF){
 	

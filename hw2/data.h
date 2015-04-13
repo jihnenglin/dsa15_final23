@@ -10,13 +10,14 @@
 
 using namespace std;
 
+
 typedef struct aqid{
 	int AdID, QueryID;
 } AQID;
 
 typedef struct dummy{
 	int AdvertiserID, KeywordID, TitleID, DescriptionID;
-	char DisplayURL[MAX_StrLen];
+	unsigned long long DisplayURL;
 } Dummy;
 
 /*
@@ -43,17 +44,17 @@ class Data{
 private:
 	int Click, Impression, AdID, AdvertiserID, Depth, Position, QueryID,
 		KeywordID, TitleID, DescriptionID;
-	char DisplayURL[MAX_StrLen];
+	unsigned long long DisplayURL;
 public:
 	Data(){};
 	void setData(int Click, int Impression, int AdID, int AdvertiserID, int Depth, int Position, int QueryID,
-		int KeywordID, int TitleID, int DescriptionID, char* DisplayURL){
+		int KeywordID, int TitleID, int DescriptionID, unsigned long long DisplayURL){
 		this->Click = Click; this->Impression = Impression; this->AdID = AdID; this->AdvertiserID = AdvertiserID;
 		this->Depth = Depth; this->Position = Position; this->Position = Position; this->QueryID = QueryID;
 		this->KeywordID = KeywordID; this->TitleID = TitleID; this->DescriptionID = DescriptionID;
-		strcpy(this->DisplayURL, DisplayURL);	
+		this->DisplayURL  = DisplayURL;	
 	};
-	char* getDisplayURL(){
+	unsigned long long getDisplayURL(){
 		return DisplayURL;
 	}
 	int getClick(){
@@ -168,7 +169,7 @@ public:
 		sort(aptr.begin(), aptr.end(), compare);
 		printADID(aptr);
 	};
-
+/*
 	bool checkRate(int a, double rateIN){
 		int i;
 		for(i = 0; i < (int)dptr.size(); i++){
@@ -177,13 +178,15 @@ public:
 		}
 		return false;	
 	};
-/*
+*/
+
 	bool checkRate(int a, double rateIN){
 		int i; int tClick = 0, tImperssion = 0;
 		for(i = 0; i < (int)dptr.size(); i++){
-			if(dptr[i].isAdID(a))
+			if(dptr[i].getAdID() == a){
 				tClick += dptr[i].getClick();
 				tImperssion += dptr[i].getImpression();
+			}
 		}
 		
 		double rate = tClick / (double)tImperssion;
@@ -192,7 +195,7 @@ public:
 		}
 		return false;	
 	};
-*/	
+	
 
 	void impressedAdID(vector<int> &AdIDarray){
 //cout << "data unmbers for user : " << dptr.size() << endl;
@@ -206,7 +209,7 @@ public:
 		Dummy temp;
 		for(int i = 0; i < (int)dptr.size(); i++){
 			if(dptr[i].getAdID() == AdID){
-				strcpy(temp.DisplayURL, dptr[i].getDisplayURL());
+				temp.DisplayURL = dptr[i].getDisplayURL();
 				temp.AdvertiserID = dptr[i].getAdvertiserID();
 				temp.KeywordID = dptr[i].getKeywordID();
 				temp.TitleID = dptr[i].getTitleID();
