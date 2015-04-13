@@ -146,11 +146,27 @@ public:
 		cout << "********************" << endl;
 	};
 	
+	bool sameAQID(AQID &a, AQID &b){
+		return (a.AdID == b.AdID && a.QueryID == b.QueryID);
+	}
+	
+	void setAQID(AQID &a, AQID &b){
+		a.AdID = b.AdID;
+		a.QueryID = b.QueryID;
+		return;
+	}
+	
 	void printADID(vector<AQID> aptr){
-		vector<AQID>::iterator it ;
+		AQID temp;
 		cout << "********************" << endl;
-		for(it = aptr.begin(); it != aptr.end(); it++){
-			cout << it->AdID << " " << it->QueryID << endl;
+		cout << aptr[0].AdID << " " << aptr[0].QueryID << endl;
+		setAQID(temp, aptr[0]);
+		
+		for(int i = 1; i < (int)aptr.size(); i++){
+			if(!sameAQID(temp, aptr[i])){
+				cout << aptr[i].AdID << " " << aptr[i].QueryID << endl;
+				setAQID(temp, aptr[i]);
+			}
 		}
 		cout << "********************" << endl;
 	};

@@ -253,7 +253,8 @@ void processIMPRESSED(USER *userArray){
 
 int main(int argc, char **argv){
 	FILE *fp;
-	fp = fopen("/tmp2/KDDCup2012/track2/kddcup2012track2.txt", "r");
+	fp = fopen(argv[1], "r");
+	//fp = fopen("/tmp2/KDDCup2012/track2/kddcup2012track2.txt", "r");
 	//fp = fopen("/nfs/undergrad/01/b01502069/.DSA/HW2/demotrack.txt", "r");
 	
 	//fp = fopen(argv[1], "r");
