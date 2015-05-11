@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
@@ -49,6 +50,7 @@ class Tree{
 
 class Id{
 	public:
+		bool isId;
 		double thrd;  // threshold
 		double con;   // confusion
 		int label;
@@ -79,31 +81,27 @@ void getIdtemp(vector<Cmp> cp, Id &idtemp, int tY, int tN){
 	sort(cp.begin(), cp.end(), mycmp);
 	int rY = tY, rN = tN; // init rY, rN
 	int lY = 0, lN = 0;   // init lY, lN
-	double min_tconfusion = total_confusion(lY, lN, rY, rN); // init mini total confusion
-	int thrd = cp[0].feature; //init thrd
-	int i = 0; int tconf;
+	double min_tconfusion = 10000; // init mini total confusion
+	double thrd = 0; //init thrd
+	int i = 0; double tconf;
 	while(i < (int)cp.size()){
 		tconf = total_confusion(lY, lN, rY, rN); 
 		if(tconf < min_tconfusion){
 			thrd = cp[i].feature;
 			min_tconfusion = tconf;
 		}
-		i++;
-		while(i < (int)cp.size() && cp[i - 1].feature == cp[i].feature){
-			if(cp[i].label == -1){
-				rN -= 1;
-				lN += 1;
-			}else{
-				rY -= 1;
-				lY += 1;
-			}
-			i++;
+		if(cp[i].label == -1){
+			rN -= 1;
+			lN += 1;
+		}else{
+			rY -= 1;
+			lY += 1;
 		}
-		
+		i++;		
 	}	
 	tconf = total_confusion(lY, lN, rY, rN); 
 	if(tconf < min_tconfusion){
-		thrd = cp[i - 1].feature;
+		thrd = cp[i-1].feature +1;
 		min_tconfusion = tconf;
 	}
 	idtemp.thrd = thrd;
@@ -125,15 +123,18 @@ void getIdtemp(vector<Cmp> cp, Id &idtemp, int tY, int tN){
 	}
 }
 
-void find_ct(vector<Data*> dataSet, int idNum, vector<Id> &ids){
+void find_ct(vector<Data*> dataSet, int idNum, vector<Id> &ids, int level){
 	//count AYBN
 	int tY = 0, tN = 0, i, j;
 	for(i = 0; i < (int)dataSet.size(); i++){
 		if(dataSet[i]->label == 1){tY++;
 		}else{tN++;}
 	}
+	printf("Level %d, total Y = %d, total N = %d\n", level, tY, tN);
 //cout << "check 4\n";
 	//get every ids' threshold and total confusion
+	int flag = 0; double ftemp;
+	
 	for(i = 0; i <= idNum; i++){
 		//construct a vector with label and id inside
 		vector<Cmp> cp;
@@ -145,27 +146,51 @@ void find_ct(vector<Data*> dataSet, int idNum, vector<Id> &ids){
 		}
 		//get  id's feature
 		Id idtemp;
+		//cout<<"check p\n";
 		getIdtemp(cp, idtemp, tY, tN);
+		//cout<<"check b\n" << dataSet.size() << endl;
+		
+		if(dataSet.size() > 1){
+			ftemp = dataSet[0]->array[i];
+			for(j = 1; j < (int)dataSet.size(); j++){
+				if(ftemp != dataSet[j]->array[i]){
+					flag = 1;
+				}
+			}
+		}else{
+			flag = 1;
+		}
+		idtemp.isId = flag;
+		
+		if(idtemp.isId){
+			printf("ID %d, thrd = %lf, confusion = %lf\n", i, idtemp.thrd, idtemp.con);
+		}
+		
 		ids.push_back(idtemp);
 	}
 }
 
-Tree* buildTree(vector<Data*> dataSet, int idNum, int eps){
+Tree* buildTree(vector<Data*> dataSet, int idNum, int eps, int level){
+	if(dataSet.size() == 0){
+		return NULL;
+	}
+	
 	int i;
 
 	//calculate total confusion and threshold for each feature
 	vector<Id> ids;
-	find_ct(dataSet, idNum, ids);
+	find_ct(dataSet, idNum, ids, level);
 	
 	//find least total confusion
-	double ltC = ids[0].con;
+	double ltC = 10000;
 	int idGet = 0;
 	for(i = 0; i <= idNum; i++){
-		if(ltC > ids[i].con){
+		if(ids[i].isId && ltC > ids[i].con){
 			ltC = ids[i].con;
 			idGet = i;
 		}
 	}
+	cout << "Level " << level << ", ID = " << idGet << ", threshold = " << ids[idGet].thrd << endl;
 //cout << "check 3\n";	
 	//make the tree
 	Tree* temp;
@@ -187,15 +212,15 @@ Tree* buildTree(vector<Data*> dataSet, int idNum, int eps){
 		}
 		temp->id = idGet;
 		temp->thrd = ids[idGet].thrd;
-		temp->left = buildTree(ldata, idNum, eps);
-		temp->right = buildTree(rdata, idNum, eps);		
+		temp->left = buildTree(ldata, idNum, eps, level + 1);
+		temp->right = buildTree(rdata, idNum, eps, level + 1);		
 	}
 	return temp;
 }
 
 void print_space(fstream &file, int level){
 	for(int i = 0; i < level; i++){
-		file << " ";
+		file << "\t";
 	}
 	return;
 }
@@ -206,12 +231,10 @@ void printTree(Tree* root, fstream &file, int level){
 		file << "return " << root->label << ";\n";
 		return;
 	}else{
-		file << "if(attr[" << root->id << "] > " << root->thrd << "){";
+		file << "if(attr[" << root->id << "] > " << root->thrd << "){\n";
 		printTree(root->right, file, level + 1);
 		print_space(file, level);
-		file << "}\n";
-		print_space(file, level);
-		file << "else{\n";
+		file << "}else{\n";
 		printTree(root->left, file, level + 1);
 		print_space(file, level);
 		file << "}\n";
@@ -222,6 +245,10 @@ void printTree(Tree* root, fstream &file, int level){
 int main(int argc, char **argv){
 	ifstream df;
 	df.open(argv[1]);
+	if(!df)  {
+			cerr << "Can't open file!\n";
+			exit(1); 
+    }
 	stringstream ss;
 	int epsilon;
 	ss << argv[2];
@@ -235,6 +262,7 @@ int main(int argc, char **argv){
 	
 	while(getline(df, line)){
 	//	total++;
+//cout << line << endl;
 		char *cstring, *tmp;
 		Data* dtemp = new Data;
 
@@ -243,16 +271,19 @@ int main(int argc, char **argv){
 
 		tmp =  strtok(cstring, ": ");
 		dtemp->label = atoi(tmp);
+//cout << tmp << endl;
 		tmp = strtok(NULL, ": ");
 
 	
 		while(tmp != NULL) {
 	
 		  int id = atoi(tmp);
+//cout << id << " ";
 		  if(id > idNum){
 			  idNum = id;
 		  }
 		  tmp = strtok(NULL, ": ");
+//cout << tmp << endl;
 		  dtemp->array[id] = atof(tmp);
 		  tmp = strtok(NULL, ": ");
 		}
@@ -262,11 +293,11 @@ int main(int argc, char **argv){
 		dataSet.push_back(dtemp);
 
 	}
-	
+	//cout << idNum <<endl;
 
 	Tree* root;
 	//make decision tree
-	root = buildTree(dataSet, idNum, epsilon);
+	root = buildTree(dataSet, idNum, epsilon, 0);
 	
 	//output tree
 	fstream file;
