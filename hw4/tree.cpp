@@ -7,7 +7,7 @@
 #include <math.h>
 #include <algorithm>
 
-#define MAX_FEATURE (1024+5)
+#define MAX_FEATURE (1024+8)
 
 using namespace std;
 
@@ -132,7 +132,7 @@ void find_ct(vector<Data*> dataSet, int idNum, vector<Id> &ids){
 		if(dataSet[i]->label == 1){tY++;
 		}else{tN++;}
 	}
-cout << "check 4\n";
+//cout << "check 4\n";
 	//get every ids' threshold and total confusion
 	for(i = 0; i <= idNum; i++){
 		//construct a vector with label and id inside
@@ -166,7 +166,7 @@ Tree* buildTree(vector<Data*> dataSet, int idNum, int eps){
 			idGet = i;
 		}
 	}
-cout << "check 3\n";	
+//cout << "check 3\n";	
 	//make the tree
 	Tree* temp;
 	temp = new Tree;
@@ -222,7 +222,6 @@ void printTree(Tree* root, fstream &file, int level){
 int main(int argc, char **argv){
 	ifstream df;
 	df.open(argv[1]);
-cout << "check 0\n";
 	stringstream ss;
 	int epsilon;
 	ss << argv[2];
@@ -238,15 +237,17 @@ cout << "check 0\n";
 	//	total++;
 		char *cstring, *tmp;
 		Data* dtemp = new Data;
-	cout << "check 00\n";
+
 		cstring = new char[line.size() + 1];
 		strncpy(cstring, line.c_str(), line.size()+1);
-	cout << "check 01\n";
+
 		tmp =  strtok(cstring, ": ");
 		dtemp->label = atoi(tmp);
 		tmp = strtok(NULL, ": ");
+
 	
 		while(tmp != NULL) {
+	
 		  int id = atoi(tmp);
 		  if(id > idNum){
 			  idNum = id;
@@ -255,18 +256,18 @@ cout << "check 0\n";
 		  dtemp->array[id] = atof(tmp);
 		  tmp = strtok(NULL, ": ");
 		}
-		
+
 		delete[] cstring;
-		cout << "check 03\n";
+
 		dataSet.push_back(dtemp);
-		cout << "check 02\n";
+
 	}
 	
-cout << "check 1\n";
+
 	Tree* root;
 	//make decision tree
 	root = buildTree(dataSet, idNum, epsilon);
-cout << "check 2\n";	
+	
 	//output tree
 	fstream file;
 	file.open("tree_pred_func.cpp",ios::out);
