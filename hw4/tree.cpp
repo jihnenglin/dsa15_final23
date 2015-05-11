@@ -7,7 +7,7 @@
 #include <math.h>
 #include <algorithm>
 
-#define MAX_FEATURE (1024+3)
+#define MAX_FEATURE (1024+5)
 
 using namespace std;
 
@@ -60,7 +60,7 @@ class Cmp{  // for compair
 		double feature;
 };
 
-bool mycmp(Cmp a, Cmp b){
+int mycmp(const Cmp &a, const Cmp &b){
 	return (a.feature < b.feature);
 }
 
@@ -132,8 +132,9 @@ void find_ct(vector<Data*> dataSet, int idNum, vector<Id> &ids){
 		if(dataSet[i]->label == 1){tY++;
 		}else{tN++;}
 	}
+cout << "check 4\n";
 	//get every ids' threshold and total confusion
-	for(i = 0; i < idNum; i++){
+	for(i = 0; i <= idNum; i++){
 		//construct a vector with label and id inside
 		vector<Cmp> cp;
 		for(j = 0; j < (int)dataSet.size(); j++){
@@ -165,7 +166,7 @@ Tree* buildTree(vector<Data*> dataSet, int idNum, int eps){
 			idGet = i;
 		}
 	}
-	
+cout << "check 3\n";	
 	//make the tree
 	Tree* temp;
 	temp = new Tree;
@@ -205,7 +206,7 @@ void printTree(Tree* root, fstream &file, int level){
 		file << "return " << root->label << ";\n";
 		return;
 	}else{
-		file << "if(attr[" << root->id << "] > " << thrd << "){";
+		file << "if(attr[" << root->id << "] > " << root->thrd << "){";
 		printTree(root->right, file, level + 1);
 		print_space(file, level);
 		file << "}\n";
@@ -221,7 +222,7 @@ void printTree(Tree* root, fstream &file, int level){
 int main(int argc, char **argv){
 	ifstream df;
 	df.open(argv[1]);
-	
+cout << "check 0\n";
 	stringstream ss;
 	int epsilon;
 	ss << argv[2];
@@ -231,39 +232,41 @@ int main(int argc, char **argv){
 	//int total = 0;
 	vector<Data*> dataSet;
 	int idNum = 0;
+
 	
 	while(getline(df, line)){
 	//	total++;
 		char *cstring, *tmp;
 		Data* dtemp = new Data;
-		
+	cout << "check 00\n";
 		cstring = new char[line.size() + 1];
 		strncpy(cstring, line.c_str(), line.size()+1);
-		
+	cout << "check 01\n";
 		tmp =  strtok(cstring, ": ");
 		dtemp->label = atoi(tmp);
 		tmp = strtok(NULL, ": ");
-
+	
 		while(tmp != NULL) {
 		  int id = atoi(tmp);
 		  if(id > idNum){
 			  idNum = id;
 		  }
 		  tmp = strtok(NULL, ": ");
-		  double features = atof(tmp);
-		  dtemp->array[id] = features;
+		  dtemp->array[id] = atof(tmp);
 		  tmp = strtok(NULL, ": ");
 		}
 		
 		delete[] cstring;
+		cout << "check 03\n";
 		dataSet.push_back(dtemp);
-		delete dtemp;
+		cout << "check 02\n";
 	}
 	
+cout << "check 1\n";
 	Tree* root;
 	//make decision tree
 	root = buildTree(dataSet, idNum, epsilon);
-	
+cout << "check 2\n";	
 	//output tree
 	fstream file;
 	file.open("tree_pred_func.cpp",ios::out);
