@@ -77,8 +77,17 @@ double total_confusion(int a, int b, int c, int d){
 	return (((a + b) / sum) * confusion(a, b) + ((c + d) / sum) * confusion(c, d));
 }
 
+void printCmp(vector<Cmp> cp){
+	cout << "*************CP*************\n";
+	for(int i = 0; i < (int)cp.size(); i++){
+		cout << cp[i].label << " " << cp[i].feature << endl;
+	}
+	cout << "*************END*************\n";
+}
+
 void getIdtemp(vector<Cmp> cp, Id &idtemp, int tY, int tN){
 	sort(cp.begin(), cp.end(), mycmp);
+	printCmp(cp);
 	int rY = tY, rN = tN; // init rY, rN
 	int lY = 0, lN = 0;   // init lY, lN
 	double min_tconfusion = 10000; // init mini total confusion
@@ -86,7 +95,8 @@ void getIdtemp(vector<Cmp> cp, Id &idtemp, int tY, int tN){
 	int i = 0; double tconf;
 	while(i < (int)cp.size()){
 		tconf = total_confusion(lY, lN, rY, rN); 
-		if(tconf < min_tconfusion){
+	printf("data[%d] : %dY%dN %dY%dN, confusion = %lf \n", i, lY, lN, rY, rN, tconf);
+		if(tconf <= min_tconfusion){
 			thrd = cp[i].feature;
 			min_tconfusion = tconf;
 		}
@@ -97,7 +107,21 @@ void getIdtemp(vector<Cmp> cp, Id &idtemp, int tY, int tN){
 			rY -= 1;
 			lY += 1;
 		}
-		i++;		
+		i++;
+		
+		while(i < (int)cp.size() && cp[i].feature == cp[i - 1].feature){
+//printf("data[%d] : %dY%dN %dY%dN, confusion = %lf \n", i, lY, lN, rY, rN, total_confusion(lY, lN, rY, rN));
+	
+		if(cp[i].label == -1){
+				rN -= 1;
+				lN += 1;
+			}else{
+				rY -= 1;
+				lY += 1;
+			}
+		i++;
+		}
+		
 	}	
 	tconf = total_confusion(lY, lN, rY, rN); 
 	if(tconf < min_tconfusion){
@@ -109,14 +133,14 @@ void getIdtemp(vector<Cmp> cp, Id &idtemp, int tY, int tN){
 	//get label
 	int N = 0, Y = 0;
 	for(i = 0; i < (int)cp.size(); i++){
-		if(cp[i].feature > thrd){
+	
 			if(cp[i].label == -1)
 				N++;
 			else
 				Y++;
-		}
+
 	} 
-	if(Y > N){
+	if(Y >= N){
 		idtemp.label = 1;
 	}else{
 		idtemp.label = -1;
@@ -130,7 +154,6 @@ void find_ct(vector<Data*> dataSet, int idNum, vector<Id> &ids, int level){
 		if(dataSet[i]->label == 1){tY++;
 		}else{tN++;}
 	}
-	printf("Level %d, total Y = %d, total N = %d\n", level, tY, tN);
 //cout << "check 4\n";
 	//get every ids' threshold and total confusion
 	int flag = 0; double ftemp;
@@ -170,12 +193,65 @@ void find_ct(vector<Data*> dataSet, int idNum, vector<Id> &ids, int level){
 	}
 }
 
+void printData(vector<Data*> dataSet, int idNum){
+	cout << "----------------PrintAllData--------------\n";
+	for(int i = 0; i < (int)dataSet.size(); i++){
+		cout << dataSet[i]->label << " ";
+		for(int j = 0; j <= idNum; j++){
+			cout << j << ":"<< dataSet[i]->array[j] << " "; 
+		}
+		cout << endl;
+	}
+	cout << "-------------------------------------\n";
+}
+
+bool errorData(vector<Data*> dataSet, int idNum){
+	int flag = 0;
+	for(int i = 0; i < (int)dataSet.size() - 1; i++){
+		if(dataSet[i]->label != dataSet[i + 1]->label){
+			flag = 1;
+			break;
+		}
+	}
+	int idFlag = 1;
+	for(int j = 1; j <= idNum; j++){
+		for(int i = 0; i < (int)dataSet.size() - 1; i++){
+			if(dataSet[i]->array[j] != dataSet[i+1]->array[j]){
+				flag = 0;
+				break;
+			}
+		}
+	}
+	return flag && idFlag;
+}
+
 Tree* buildTree(vector<Data*> dataSet, int idNum, int eps, int level){
 	if(dataSet.size() == 0){
 		return NULL;
 	}
+printData(dataSet, idNum);	
+	int tY = 0, tN = 0, i;
+	for(i = 0; i < (int)dataSet.size(); i++){
+		if(dataSet[i]->label == 1){tY++;
+		}else{tN++;}
+	}
+	double c = confusion(tY, tN);
 	
-	int i;
+	Tree* temp;
+	temp = new Tree;
+	
+	printf("Level %d, total Y = %d, total N = %d, confusion = %lf\n", level, tY, tN, c);
+	
+	if(c <= eps || errorData(dataSet, idNum)){        		         //leaf
+		temp->left = NULL;
+		temp->right = NULL;
+		if(tY >= tN){
+			temp->label = 1;
+		}else{
+			temp->label = -1;
+		}
+
+	}else{
 
 	//calculate total confusion and threshold for each feature
 	vector<Id> ids;
@@ -183,28 +259,22 @@ Tree* buildTree(vector<Data*> dataSet, int idNum, int eps, int level){
 	
 	//find least total confusion
 	double ltC = 10000;
-	int idGet = 0;
-	for(i = 0; i <= idNum; i++){
+	int idGet = 1;
+	for(i = 1; i <= idNum; i++){
 		if(ids[i].isId && ltC > ids[i].con){
 			ltC = ids[i].con;
 			idGet = i;
 		}
 	}
 	cout << "Level " << level << ", ID = " << idGet << ", threshold = " << ids[idGet].thrd << endl;
-//cout << "check 3\n";	
+
+	//cout << "check 3\n";	
 	//make the tree
-	Tree* temp;
-	temp = new Tree;
-	if(ltC <= eps){        		         //leaf
-		temp->left = NULL;
-		temp->right = NULL;
-		temp->label = ids[idGet].label;
-		
-	}else{	                        	//internal
+			                        	//internal
 		//build two data set
 		vector<Data*> ldata, rdata;
 		for(i = 0; i < (int)dataSet.size(); i++){
-			if(dataSet[i]->array[idGet] > ids[idGet].thrd){
+			if(dataSet[i]->array[idGet] >= ids[idGet].thrd){
 				rdata.push_back(dataSet[i]);
 			}else{
 				ldata.push_back(dataSet[i]);
@@ -231,7 +301,7 @@ void printTree(Tree* root, fstream &file, int level){
 		file << "return " << root->label << ";\n";
 		return;
 	}else{
-		file << "if(attr[" << root->id << "] > " << root->thrd << "){\n";
+		file << "if(attr[" << root->id << "] >= " << root->thrd << "){\n";
 		printTree(root->right, file, level + 1);
 		print_space(file, level);
 		file << "}else{\n";
