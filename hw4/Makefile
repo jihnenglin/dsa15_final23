@@ -1,4 +1,4 @@
-target = tree
+target = tree forest
 CFLAGS = -O2 -Wall
 CPPFLAGS = -O2 -std=c++11 -Wall
 name = tree
@@ -11,11 +11,11 @@ all: $(target)
 %: %.cpp
 	g++ $(CPPFLAGS) $< -o $(name)
 	
-hw2: hw2.cpp data.h
-	g++ $(CPPFLAGS) hw2.cpp -o $(name)
+tree: tree.cpp
+	g++ $(CPPFLAGS) tree.cpp -o $@
+	
+forest: forest.cpp
+	g++ $(CPPFLAGS) forest.cpp -o $@
 
 clean:
 	rm -rf $(target)
-
-run:
-	./demo

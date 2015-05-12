@@ -7,8 +7,10 @@
 #include <vector>
 #include <math.h>
 #include <algorithm>
+#include <time.h>
 
 #define MAX_FEATURE (1024+8)
+#define MAXT 100000;
 
 using namespace std;
 
@@ -225,7 +227,7 @@ bool errorData(vector<Data*> dataSet, int idNum){
 	return flag && idFlag;
 }
 
-Tree* buildTree(vector<Data*> dataSet, int idNum, double eps, int level){
+Tree* buildTree(vector<Data*> dataSet, int idNum, int eps, int level){
 	if(dataSet.size() == 0){
 		return NULL;
 	}
@@ -298,7 +300,12 @@ void print_space(fstream &file, int level){
 void printTree(Tree* root, fstream &file, int level){
 	print_space(file, level);
 	if(root->isLeaf()){
-		file << "return " << root->label << ";\n";
+		if(root->label == 1){
+			file << "voteY++;\n";
+		}else{
+			file << "voteN++;\n";
+		}
+		
 		return;
 	}else{
 		file << "if(attr[" << root->id << "] >= " << root->thrd << "){\n";
@@ -320,9 +327,9 @@ int main(int argc, char **argv){
 			exit(1); 
     }
 	stringstream ss;
-	double epsilon;
+	int T;
 	ss << argv[2];
-	ss >> epsilon;
+	ss >> T;
 	
 	string line;
 	//int total = 0;
@@ -364,16 +371,27 @@ int main(int argc, char **argv){
 
 	}
 	//cout << idNum <<endl;
-
-	Tree* root;
-	//make decision tree
-	root = buildTree(dataSet, idNum, epsilon, 0);
 	
-	//output tree
 	fstream file;
-	file.open("tree_pred_func.cpp",ios::out);
-	file << "int tree_predict(double *attr){\n";
-	printTree(root, file, 1);
+	file.open("forest_pred_func.cpp",ios::out);
+	file << "int forest_predict(double *attr){\n";
+	file << "\tint voteY = 0, voteN = 0;\n";
+	
+	Tree* root;
+	for(int i = 0; i < T; i++){
+		vector<Data*> FdataSet;
+		srand(time(NULL));
+		for(int j = 0; j < (int)dataSet.size() / 3; j++){
+			int k = rand() % (int)dataSet.size();
+			FdataSet.push_back(dataSet[k]);
+		}
+		//make decision tree
+		root = buildTree(FdataSet, idNum, 0, 0);
+		printTree(root, file, 1);
+	}
+	
+	file << "\tif(voteY >= voteN) return 1;\n";
+	file << "\telse return -1;\n";
 	file << "}\n";
 	file.close();
 	//delete root;
