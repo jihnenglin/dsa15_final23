@@ -87,7 +87,7 @@ void printCmp(vector<Cmp> cp){
 
 void getIdtemp(vector<Cmp> cp, Id &idtemp, int tY, int tN){
 	sort(cp.begin(), cp.end(), mycmp);
-	printCmp(cp);
+//printCmp(cp);
 	int rY = tY, rN = tN; // init rY, rN
 	int lY = 0, lN = 0;   // init lY, lN
 	double min_tconfusion = 10000; // init mini total confusion
@@ -95,7 +95,7 @@ void getIdtemp(vector<Cmp> cp, Id &idtemp, int tY, int tN){
 	int i = 0; double tconf;
 	while(i < (int)cp.size()){
 		tconf = total_confusion(lY, lN, rY, rN); 
-	printf("data[%d] : %dY%dN %dY%dN, confusion = %lf \n", i, lY, lN, rY, rN, tconf);
+//printf("data[%d] : %dY%dN %dY%dN, confusion = %lf \n", i, lY, lN, rY, rN, tconf);
 		if(tconf <= min_tconfusion){
 			thrd = cp[i].feature;
 			min_tconfusion = tconf;
@@ -186,7 +186,7 @@ void find_ct(vector<Data*> dataSet, int idNum, vector<Id> &ids, int level){
 		idtemp.isId = flag;
 		
 		if(idtemp.isId){
-			printf("ID %d, thrd = %lf, confusion = %lf\n", i, idtemp.thrd, idtemp.con);
+//			printf("ID %d, thrd = %lf, confusion = %lf\n", i, idtemp.thrd, idtemp.con);
 		}
 		
 		ids.push_back(idtemp);
@@ -229,7 +229,7 @@ Tree* buildTree(vector<Data*> dataSet, int idNum, int eps, int level){
 	if(dataSet.size() == 0){
 		return NULL;
 	}
-printData(dataSet, idNum);	
+//printData(dataSet, idNum);	
 	int tY = 0, tN = 0, i;
 	for(i = 0; i < (int)dataSet.size(); i++){
 		if(dataSet[i]->label == 1){tY++;
@@ -240,7 +240,7 @@ printData(dataSet, idNum);
 	Tree* temp;
 	temp = new Tree;
 	
-	printf("Level %d, total Y = %d, total N = %d, confusion = %lf\n", level, tY, tN, c);
+//	printf("Level %d, total Y = %d, total N = %d, confusion = %lf\n", level, tY, tN, c);
 	
 	if(c <= eps || errorData(dataSet, idNum)){        		         //leaf
 		temp->left = NULL;
@@ -266,7 +266,7 @@ printData(dataSet, idNum);
 			idGet = i;
 		}
 	}
-	cout << "Level " << level << ", ID = " << idGet << ", threshold = " << ids[idGet].thrd << endl;
+	//cout << "Level " << level << ", ID = " << idGet << ", threshold = " << ids[idGet].thrd << endl;
 
 	//cout << "check 3\n";	
 	//make the tree
@@ -375,6 +375,7 @@ int main(int argc, char **argv){
 	file << "int tree_predict(double *attr){\n";
 	printTree(root, file, 1);
 	file << "}\n";
+	file.close();
 	//delete root;
 	return 0;
 }
