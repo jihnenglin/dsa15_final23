@@ -1,3 +1,6 @@
+#ifndef BINOMIAL_TREE
+#define BINOMIAL_TREE
+
 #include <utility>
 #include <list>
 
@@ -129,10 +132,22 @@ class BinomialHeap {
             for(int i=0; i<32; ++i) trees[i] = nullptr;
             trees[0] = new BT(element);
         }
+		
+		void clear(){
+			size = 0;
+			for(int i=0; i<32; ++i) {
+				//delete trees[i];
+				trees[i] = nullptr;
+			}
+		}
+		
+		int getsize(){
+			return size;
+		}
 
         /* merge all elements in the binomial heap b into *this, and clear the binomial heap b.
          *
-         * INPUT:   b: a pointer of BinomialHeap
+         * INPUT:   b: a reference of BinomialHeap
          */
         void merge(BH &b) {
             // write your code here.
@@ -144,12 +159,29 @@ class BinomialHeap {
 				temp = merge_tree(trees[i], b.trees[i], temp.first);
 				trees[i] = temp.second;
 			}
+			
+			b.clear();//clean b
         }
 
         void insert(const T &element) {
             BH tmp = BH(element);
             merge(tmp);
         }
+		
+		T peek(){
+			if(size==0) throw EmptyHeap();
+            
+			else {
+                //find the tree contains maximum element
+                int max_tree = -1;
+                for(int i=0; i<32; ++i)
+                    if(trees[i]->size() > 0 && (max_tree == -1 || trees[i]->element > trees[max_tree]->element))
+                        max_tree = i;
+				
+				return trees[max_tree]->element;
+			}
+		}
+		
         T pop() {
             if(size==0) throw EmptyHeap();
             else {
@@ -163,9 +195,12 @@ class BinomialHeap {
                 T &max_element = m_r.first;
                 BH &remainder = m_r.second;
 
+                size -= trees[max_tree]->size();
                 trees[max_tree] = nullptr;
                 merge(remainder);
                 return max_element;
             }
         }
 };
+
+#endif
