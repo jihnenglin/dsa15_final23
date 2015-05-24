@@ -3,6 +3,8 @@
 #include <utility>
 #include "binomial_tree.h"
 #include <string.h>
+#include <vector>
+#include <algorithm>
 
 typedef std::pair<int,int> Job; 
 //priority & id
@@ -13,8 +15,9 @@ int main(){
 	int c, w; // total computer, judge parameter
 	int cm, id, p, cm1, cm2;
 	char request[10];
+	
 	scanf("%d%d", &c, &w);
-	printf("c = %d, w = %d\n", c, w);
+	//printf("c = %d, w = %d\n", c, w);
 	BinomialHeap<Job> *bptr;
 	bptr = new BinomialHeap<Job>[c];
 	
@@ -27,14 +30,23 @@ int main(){
 			bptr[cm].insert(temp);
 			printf("There are %d tasks on computer %d\n", bptr[cm].getsize(), cm);
 		}else if(strcmp(request, "execute") == 0){
+			vector<int> ids;
 			scanf("%d", &cm);
 			//printf("do execute %d\n", cm);
 			Job max = bptr[cm].pop();
-			printf("Computer %d executed task %d\n", cm, max.second);
+			
+			ids.push_back(max.second);
+			//printf("Computer %d executed task %d\n", cm, max.second);
 			Job temp = bptr[cm].pop();
 			while(max.first == temp.first){
-				printf("Computer %d executed task %d\n", cm, temp.second);
+				//printf("Computer %d executed task %d\n", cm, temp.second);
+				ids.push_back(temp.second);
 				temp = bptr[cm].pop();
+			}
+			sort(ids.begin(), ids.end());
+			
+			for(int i = 0; i < (int)ids.size(); i++){
+				printf("Computer %d executed task %d\n", cm, ids[i]);
 			}
 		}else if(strcmp(request, "merge") == 0){
 			scanf("%d%d", &cm1, &cm2);
