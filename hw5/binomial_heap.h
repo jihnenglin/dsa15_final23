@@ -61,7 +61,7 @@ class BinomialHeap {
 			}else if(a == nullptr && c == nullptr){
 				temp = make_pair(nullptr, b);
 			}else if(a == nullptr){
-				if(b->element >= c->element){
+				if(!(b->element < c->element)){
 					b->children.push_front(c);
 					b->_size *= 2;
 					temp = make_pair(b, nullptr);
@@ -71,7 +71,7 @@ class BinomialHeap {
 					temp = make_pair(c, nullptr);
 				}
 			}else if(b == nullptr){
-				if(a->element >= c->element){
+				if(!(a->element < c->element)){
 					a->children.push_front(c);
 					a->_size *= 2;
 					temp = make_pair(a, nullptr);
@@ -81,7 +81,7 @@ class BinomialHeap {
 					temp = make_pair(c, nullptr);
 				}
 			}else if(c == nullptr){
-				if(b->element >= a->element){
+				if(!(b->element < a->element)){
 					b->children.push_front(a);
 					b->_size *= 2;
 					temp = make_pair(b, nullptr);
@@ -91,7 +91,7 @@ class BinomialHeap {
 					temp = make_pair(a, nullptr);
 				}
 			}else{
-				if(b->element >= a->element){
+				if(!(b->element < a->element)){
 					b->children.push_front(a);
 					b->_size *= 2;
 					temp = make_pair(b, c);
@@ -190,7 +190,7 @@ class BinomialHeap {
                 //find the tree contains maximum element
                 int max_tree = -1;
                 for(int i=0; i<32; ++i)
-                    if(trees[i]->size() > 0 && (max_tree == -1 || trees[i]->element > trees[max_tree]->element))
+                    if(trees[i]->size() > 0 && (max_tree == -1 || !(trees[i]->element < trees[max_tree]->element)))
                         max_tree = i;
 				
 				return trees[max_tree]->element;
@@ -219,7 +219,7 @@ class BinomialHeap {
                 //find the tree contains maximum element
                 int max_tree = -1;
                 for(int i=0; i<32; ++i)
-                    if(trees[i]->size() > 0 && (max_tree == -1 || trees[i]->element > trees[max_tree]->element))
+                    if(trees[i]->size() > 0 && (max_tree == -1 || !(trees[i]->element < trees[max_tree]->element)))
                         max_tree = i;
 
                 MaxRemainder m_r = pop_max(trees[max_tree]);
