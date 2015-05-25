@@ -1,8 +1,10 @@
 #ifndef BINOMIAL_TREE
 #define BINOMIAL_TREE
 
+#include <iostream>
 #include <utility>
 #include <list>
+#include <cmath>
 
 using namespace std;
 
@@ -62,41 +64,41 @@ class BinomialHeap {
 				if(b->element >= c->element){
 					b->children.push_front(c);
 					b->_size *= 2;
-					temp = make_pair(nullptr, b);
+					temp = make_pair(b, nullptr);
 				}else{
 					c->children.push_front(b);
 					c->_size *= 2;
-					temp = make_pair(nullptr, c);
+					temp = make_pair(c, nullptr);
 				}
 			}else if(b == nullptr){
 				if(a->element >= c->element){
 					a->children.push_front(c);
 					a->_size *= 2;
-					temp = make_pair(nullptr, a);
+					temp = make_pair(a, nullptr);
 				}else{
 					c->children.push_front(a);
 					c->_size *= 2;
-					temp = make_pair(nullptr, c);
+					temp = make_pair(c, nullptr);
 				}
 			}else if(c == nullptr){
 				if(b->element >= a->element){
 					b->children.push_front(a);
 					b->_size *= 2;
-					temp = make_pair(nullptr, b);
+					temp = make_pair(b, nullptr);
 				}else{
 					a->children.push_front(b);
 					a->_size *= 2;
-					temp = make_pair(nullptr, a);
+					temp = make_pair(a, nullptr);
 				}
 			}else{
 				if(b->element >= a->element){
 					b->children.push_front(a);
 					b->_size *= 2;
-					temp = make_pair(c, b);
+					temp = make_pair(b, c);
 				}else{
 					a->children.push_front(b);
 					a->_size *= 2;
-					temp = make_pair(c, a);
+					temp = make_pair(a, c);
 				}
 			}
 			return temp;
@@ -115,11 +117,24 @@ class BinomialHeap {
 			T max = a->element;
 			BH temp;
 			for(typename list<BinomialTree*>::iterator it = a->children.begin(); it != a->children.end(); it++){
-				temp.trees[(*it)->size()] = *it;
+				//std::cout << (*it)->_size << "\n";
+				int i = log2((*it)->size());
+				temp.trees[i] = *it;
 			}
+
+			temp.size = a->_size - 1;
 			MaxRemainder mtemp(max, temp);
 			return mtemp;
         }
+		
+		void preorder_tree(BT* a){
+			if(a == nullptr) return;
+			cout << a->element << endl;
+			for(typename list<BinomialTree*>::iterator it = a->children.begin(); it != a->children.end(); it++){
+				preorder_tree(*it);
+			}
+			
+		}
 
         int size;
         BT* trees[32]; //binomial trees of the binomial heap, where trees[i] is a tree with size 2^i.
@@ -151,7 +166,7 @@ class BinomialHeap {
          */
         void merge(BH &b) {
             // write your code here.
-			size = size + b.size;
+			size = size + b.getsize();
 			CarrySum temp;
 			temp = merge_tree(trees[0], b.trees[0], nullptr);
 			trees[0] = temp.second;
@@ -182,6 +197,22 @@ class BinomialHeap {
 			}
 		}
 		
+		void peek_heap(){
+			cout << "---------------peek-heap-------------------\n";
+			if(size==0) cout << "empty heap\n";
+            
+			else {
+                for(int i=0; i<32; ++i){
+					if(trees[i]->size() > 0){
+						cout << "***tree " << i << " ***\n";
+						preorder_tree(trees[i]);
+						cout << "***end***\n";
+					}
+				}
+  			}
+			cout << "---------------end-------------------\n";
+		}
+		
         T pop() {
             if(size==0) throw EmptyHeap();
             else {
@@ -196,7 +227,8 @@ class BinomialHeap {
                 BH &remainder = m_r.second;
 
                 size -= trees[max_tree]->size();
-                trees[max_tree] = nullptr;
+                //size--;
+				trees[max_tree] = nullptr;
                 merge(remainder);
                 return max_element;
             }
