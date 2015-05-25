@@ -7,7 +7,7 @@ all: $(target)
 %: %.cpp
 	g++ $(CPPFLAGS) $< -o $(name)
 	
-hw2: hw5.cpp binomial_tree.h
+hw2: hw5.cpp binomial_heap.h
 	g++ $(CPPFLAGS) hw5.cpp -o $(name)
 
 clean:
