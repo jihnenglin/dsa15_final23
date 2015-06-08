@@ -6,10 +6,6 @@ extern "C"{
 #include "avl_ntudsa.h"
 };
 */
-struct Game{
-	int id;
-	Game *ptr;
-};
 
 using namespace std;
 
@@ -22,8 +18,19 @@ int int_compare(const void *pa, const void *pb, void *param){
 	else return 0;
 }
 
+int owner(int id, int *gp){
+	while(gp[id] != id){
+		id = gp[id];
+	}
+	return id;
+}
+
+void printOwnGame(int n, int o, int *gp){
+	
+}
+
 int main(){
-	// n is the number of friends
+	// n is the number of friends & games
 	// m is the number of incidents
 	int n, m;  
 	scanf("%d%d", &n, &m);
@@ -32,10 +39,9 @@ int main(){
 	//struct avl_table *friends[n + 1];
 	
 	//initialize game id partition
-	Game *gp = new Game[n];
-	for(int i = 0; i < n; i++){
-		gp[i].id = i;
-		gp[i].ptr = &gp[i];
+	int *gp = new int[n];
+	for(int i = 0; i <= n; i++){
+		gp[i] = i;
 	}
 	
 	
@@ -60,7 +66,11 @@ int main(){
 		scanf("%d%d%d", &temp, &j, &k);
 //printf("%d %d %d\n", temp, j, k);
 		if(temp == 1){
-			
+			int taker = owner(j, gp);
+			int giver = owner(k, gp);
+			gp[giver] = taker;
+			printOwnGame(taker);
+			printf("%d take all game of %d\n", taker, giver);
 		}else if(temp == 2){
 		
 		}else{
