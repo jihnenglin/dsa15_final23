@@ -45,7 +45,10 @@ void merge_tree(struct avl_table *taker, struct avl_node *node){
 		return;
 	}
 	//printf("%d ", (node -> avl_data)); 
-	int *p = avl_probe(taker, (node -> avl_data));
+	for(int i = 0; i < node->avl_cnt; i++){
+		int *p = avl_probe(taker, (node -> avl_data));
+	}
+	
 	if(node->avl_link[0] != NULL || node->avl_link[1] != NULL){
 		merge_tree(taker, node->avl_link[0]);
 		merge_tree(taker, node->avl_link[1]);
@@ -72,10 +75,10 @@ int buyGame(const struct avl_node *node, long long int s){
 		return (node->avl_cnt + node->avl_cnode[0] + node->avl_cnode[1]);
 	}
 	if(s > (node->avl_data * node->avl_cnt + node->avl_sum[0])){
-		return (node->avl_cnt + node->avl_cnode[0] + buyGame(node->avl_link[1], s - (node->avl_data * node->avl_cnt + node->avl_sum[0])));
+		return (node->avl_cnt + node->avl_cnode[0] + buyGame(node->avl_link[1], (s - node->avl_data * node->avl_cnt - node->avl_sum[0])));
 	}
 	if(s > (node->avl_sum[0])){
-		return node->avl_cnode[0] + (s - node->avl_sum[0]) / node->avl_data;
+		return (node->avl_cnode[0] + (s - node->avl_sum[0]) / node->avl_data);
 	}
 	return buyGame(node->avl_link[0], s);
 }
@@ -149,10 +152,14 @@ int main(){
 			//come to owner of game j with s dollars
 			scanf("%d%lld", &j, &s);
 			int u = owner(j, gp);
-			cout << u << " ";
 			
+			/*
+			cout << "*** print price tree ***\n";
+			preorder_char_avl(forest[u]->avl_root);
+			cout << endl << "**********\n";
+			*/
 			int total_num = buyGame(forest[u]->avl_root, s);
-			
+			cout << u << " ";
 			cout << total_num << "\n";
 			
 		}else{
