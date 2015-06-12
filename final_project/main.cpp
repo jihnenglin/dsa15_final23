@@ -1,14 +1,34 @@
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include "account.h"
+extern "C"{
+#include "avl.h"
+};
 #define MAXL 105
 
 using namespace std;
 
+int compare(const void *pa, const void *pb, void *param){
+	const Account *a = (const Account *)pa;
+	const Account *b = (const Account *)pb;
+	
+	if(*a < *b)
+		return -1;
+	else if(*a > *b)
+		return 1;
+	else
+		return 0;
+}
+
 int main(){
 	char id1[MAXL], id2[MAXL], p[MAXL], p2[MAXL], request[MAXL]; // input id and password
-	double money; // input money
+	long long int money; // input money
 	
+	struct avl_table *tree;
+	tree = avl_create(compare, NULL, NULL);
+
 	while(scanf("%s", request) != EOF){
 		//cout << request << endl;
 		if(strcmp(request, "login") == 0){
@@ -25,7 +45,9 @@ int main(){
 #ifdef D_INPUT
 			printf("create %s %s\n", id1, p);
 #endif
-			// do something here
+			Account* account = new Account(string(id1), string(p));
+			
+			avl_probe(tree, account);
 			
 		}else if(strcmp(request, "delete") == 0){
 			scanf("%s%s", id1, p);
@@ -40,19 +62,19 @@ int main(){
 #endif
 			// do something here
 		}else if(strcmp(request, "deposit") == 0){
-			scanf("%lf", &money);
+			scanf("%lld", &money);
 #ifdef D_INPUT
 			printf("deposit %.0lf\n", money);
 #endif
 			// do something here
 		}else if(strcmp(request, "withdraw") == 0){
-			scanf("%lf", &money);
+			scanf("%lld", &money);
 #ifdef D_INPUT
 			printf("withdraw %.0lf\n", money);
 #endif
 			// do something here
 		}else if(strcmp(request, "transfer") == 0){
-			scanf("%s%lf", id1, &money);
+			scanf("%s%lld", id1, &money);
 #ifdef D_INPUT
 			printf("transfer %s %.0lf\n", id1, money);
 #endif
