@@ -24,13 +24,13 @@ public:
 		history = new std::vector<History>;
 	};
 	bool operator<(const Account& account2) const{
-		if(this->id.compare(account2.id) == -1)
+		if(this->id.compare(account2.id) < 0)
 			return true;
 		else
 			return false;
 	}
 	bool operator>(const Account& account2) const{
-		if(this->id.compare(account2.id) == 1)
+		if(this->id.compare(account2.id) > 0)
 			return true;
 		else
 			return false;
