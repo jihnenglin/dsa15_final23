@@ -9,10 +9,10 @@
 class History{
 private:
 	bool type;
-	int time;
 	std::string id;
+	int time;
 public:
-	History(bool _type, std::string _id):type(_type), id(_id){};
+	History(bool _type, std::string _id, int _time):type(_type), id(_id), time(_time){};
 	bool operator<(const History& history2) const{
 		return this->time < history2.time;}
 	bool operator>(const History& history2) const{
