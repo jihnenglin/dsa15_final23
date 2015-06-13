@@ -9,9 +9,14 @@
 class History{
 private:
 	bool type;
+	int time;
 	std::string id;
 public:
 	History(bool _type, std::string _id):type(_type), id(_id){};
+	bool operator<(const History& history2) const{
+		return this->time < history2.time;}
+	bool operator>(const History& history2) const{
+		return this->time > history2.time;}
 };
 
 class Account{
