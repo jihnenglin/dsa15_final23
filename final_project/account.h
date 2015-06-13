@@ -26,7 +26,7 @@ public:
 	long long int money;
 	std::vector<History*>* history;
 	Account(std::string _id, std::string _password):id(_id), password(_password), money(0){
-		history = new std::vector<History>;
+		history = new std::vector<History*>;
 	};
 	bool operator<(const Account& account2) const{
 		if(this->id.compare(account2.id) < 0)
