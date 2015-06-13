@@ -42,9 +42,44 @@ public:
 			return true;
 		else
 			return false;
-
 	}
 };
+
+void merge(Account* a1, Account* a2){
+	a1->money += a2->money;
+	std::vector<History*>* new_history = new std::vector<History*>;
+	unsigned int i = 0, j = 0;
+	while (i < (*a1->history).size() && j < (*a2->history).size()){
+		if((*a1->history)[i] < (*a2->history)[j]){
+			(*new_history).push_back((*a1->history)[i]);
+			i++;
+			continue;
+		}
+		else if((*a1->history)[i] == (*a2->history)[j]){
+			(*new_history).push_back((*a1->history)[i]);
+			(*new_history).push_back((*a2->history)[j]);
+			i++;
+			j++;
+			continue;
+		}
+		else{
+			(*new_history).push_back((*a2->history)[j]);
+			j++;
+			continue;
+		}
+	}
+	while(i < (*a1->history).size()){
+		(*new_history).push_back((*a1->history)[i]);
+		i++;
+	}
+	while(j < (*a2->history).size()){
+		(*new_history).push_back((*a2->history)[j]);
+		j++;
+	}
+	delete a1->history;
+	a1->history = new_history;
+	delete a2;
+}
 
 int score(std::string &u, std::string &v){
 	int L = std::min(u.size(), v.size());
