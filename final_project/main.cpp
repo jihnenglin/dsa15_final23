@@ -42,12 +42,16 @@ int main(){
 				// printf("success\n");
 		}else if(strcmp(request, "create") == 0){
 			scanf("%s%s", id1, p);
-#ifdef D_INPUT
-			printf("create %s %s\n", id1, p);
-#endif
 			Account* account = new Account(string(id1), string(p));
 			
-			avl_probe(tree, account);
+			if(avl_find(tree, account) == NULL){
+				avl_probe(tree, account);
+				cout << "success" << endl;
+			}
+			else{
+				cout << "ID " << account->id << " exists, " << endl;
+				//recommend 10 unused IDs
+			}
 			
 		}else if(strcmp(request, "delete") == 0){
 			scanf("%s%s", id1, p);
