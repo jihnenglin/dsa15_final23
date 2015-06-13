@@ -14,7 +14,10 @@ all: $(TARGET)
 	$(CPP) $(CPPFLAGS) $(DEBUG) $< -c
 
 $(TARGET): md5.h
-	$(CPP) $(CPPFLAGS) md5.cpp -o $@
+	$(CPP) $(CPPFLAGS) main.cpp md5.cpp -o $@
+
+run:
+	./main
 
 clean:
 	$(RM) $(TARGET)
