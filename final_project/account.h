@@ -7,14 +7,16 @@
 #define out 0
 
 class History{
-private:
+public:
 	bool type;
 	std::string id;
+	long long int money;
 	int time;
-public:
-	History(bool _type, std::string _id, int _time):type(_type), id(_id), time(_time){};
+	History(bool _type, std::string _id, long long int _money, int _time):type(_type), id(_id), money(_money), time(_time){};
 	bool operator<(const History& history2) const{
 		return this->time < history2.time;}
+	bool operator==(const History& history2) const{
+		return this->time == history2.time;}
 	bool operator>(const History& history2) const{
 		return this->time > history2.time;}
 };
@@ -28,6 +30,7 @@ public:
 	Account(std::string _id, std::string _password):id(_id), password(_password), money(0){
 		history = new std::vector<History*>;
 	};
+	~Account(){delete history;};
 	bool operator<(const Account& account2) const{
 		if(this->id.compare(account2.id) < 0)
 			return true;
