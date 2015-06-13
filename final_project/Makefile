@@ -15,7 +15,7 @@ $(TARGET): $(OBJS)
 	$(CPP) $(CPPFLAGS) $(OBJS) -o $@
 
 $(TARGET2): 
-	$(CPP) $(CPPFLAGS) main_vector.cpp -o main_vector.exe
+	$(CPP) $(CPPFLAGS) main_vector.cpp -o $@ 
 	
 %.o: %.c
 	$(CC) $(CFLAGS) $(DEBUG) $< -c

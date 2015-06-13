@@ -44,7 +44,7 @@ int main(){
 #endif
 			Account* account = new Account(string(id1), string(p));
 			
-			accounts.push_back(account);
+			accounts.push_back(*account);
 			
 		}else if(strcmp(request, "delete") == 0){
 			scanf("%s%s", id1, p);
