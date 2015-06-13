@@ -24,7 +24,7 @@ public:
 	std::string id;
 	std::string password;
 	long long int money;
-	std::vector<History>* history;
+	std::vector<History*>* history;
 	Account(std::string _id, std::string _password):id(_id), password(_password), money(0){
 		history = new std::vector<History>;
 	};
