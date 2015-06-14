@@ -7,7 +7,7 @@
 #include "md5.h"
 #define MAXL 105
 
-typedef vector<Account*> Datas;
+typedef std::vector<Account*> Datas;
 
 using namespace std;
 
@@ -34,14 +34,15 @@ Account* vector_find(Datas &list, const Account* account){
 	return NULL;
 }
 
-Account* vector_delete(Datas &list, const Account* account){
-	for(int i = 0; i < (int)list.size(); i++){
+Account* vector_delete(Datas &list, Account* account){
+	int i = 0;
+	for(i = 0; i < (int)list.size(); i++){
 		if(list[i]->id.compare(account->id) == 0){
 			break;
 		}
 	}
 	
-	list.erase (list.begin() + 1 + i);
+	list.erase(list.begin() + 1 + i);
 	return account;
 }
 
@@ -51,7 +52,7 @@ int main(){
 
 	Datas list;
 	int time = 0;
-
+	Account* current = NULL;
 	while(scanf("%s", request) != EOF){
 		if(strcmp(request, "login") == 0){
 			scanf("%s%s", id1, p);
@@ -84,7 +85,7 @@ int main(){
 			scanf("%s%s", id1, p);
 			Account* tmp = new Account(string(id1), md5(string(p)));
 
-			Account* account = vector_find(list, id1);
+			Account* account = vector_find(list, tmp);
 			if(account == NULL)
 				cout << "ID " << tmp->id << " not found" << endl;
 			else if(account->password.compare(md5(string(p))) != 0)
