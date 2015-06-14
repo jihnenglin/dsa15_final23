@@ -6,6 +6,7 @@
 extern "C"{
 #include "avl.h"
 };
+#include "md5.h"
 #define MAXL 105
 
 using namespace std;
@@ -48,12 +49,12 @@ int main(){
 	while(scanf("%s", request) != EOF){
 		if(strcmp(request, "login") == 0){
 			scanf("%s%s", id1, p);
-			Account* tmp = new Account(string(id1), string(p));
+			Account* tmp = new Account(string(id1), md5(string(p)));
 
 			Account* account = (Account *)avl_find(tree, tmp);
 			if(account == NULL)
 				cout << "ID " << tmp->id << " not found" << endl;
-			else if(account->password.compare(string(p)) != 0)
+			else if(account->password.compare(md5(string(p))) != 0)
 				cout << "wrong password" << endl;
 			else{
 				current = account;
@@ -62,7 +63,7 @@ int main(){
 			delete tmp;
 		}else if(strcmp(request, "create") == 0){
 			scanf("%s%s", id1, p);
-			Account* account = new Account(string(id1), string(p));
+			Account* account = new Account(string(id1), md5(string(p)));
 
 			if(avl_find(tree, account) == NULL){
 				avl_probe(tree, account);
@@ -76,22 +77,23 @@ int main(){
 
 		}else if(strcmp(request, "delete") == 0){
 			scanf("%s%s", id1, p);
-			Account* tmp = new Account(string(id1), string(p));
+			Account* tmp = new Account(string(id1), md5(string(p)));
 
 			Account* account = (Account *)avl_find(tree, tmp);
 			if(account == NULL)
 				cout << "ID " << tmp->id << " not found" << endl;
-			else if(account->password.compare(string(p)) != 0)
+			else if(account->password.compare(md5(string(p))) != 0)
 				cout << "wrong password" << endl;
 			else{
+				account = (Account *) avl_delete(tree, account);
 				delete account;
 				cout << "success" << endl;
 			}
 			delete tmp;
 		}else if(strcmp(request, "merge") == 0){
 			scanf("%s%s%s%s", id1, p, id2, p2);
-			Account* tmp1 = new Account(string(id1), string(p));
-			Account* tmp2 = new Account(string(id2), string(p2));
+			Account* tmp1 = new Account(string(id1), md5(string(p)));
+			Account* tmp2 = new Account(string(id2), md5(string(p2)));
 
 			Account* account1 = (Account *)avl_find(tree, tmp1);
 			Account* account2 = (Account *)avl_find(tree, tmp2);
@@ -99,9 +101,9 @@ int main(){
 				cout << "ID " << tmp1->id << " not found" << endl;
 			else if(account2 == NULL)
 				cout << "ID " << tmp2->id << " not found" << endl;
-			else if(account1->password.compare(string(p)) != 0)
+			else if(account1->password.compare(md5(string(p))) != 0)
 				cout << "wrong password1" << endl;
-			else if(account2->password.compare(string(p2)) != 0)
+			else if(account2->password.compare(md5(string(p2))) != 0)
 				cout << "wrong password2" << endl;
 			else{
 				for(unsigned int j = 0; j < (*account2->history).size(); j++){
@@ -115,6 +117,8 @@ int main(){
 			        	delete tmp;
 				}
 				merge(account1, account2);
+				account2 = (Account *) avl_delete(tree, account2);
+				delete account2;
 				cout << "success, " << account1->id << " has " << account1->money << " dollars" << endl;
 			}
 			delete tmp1;
