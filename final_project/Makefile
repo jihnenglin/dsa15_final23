@@ -2,20 +2,23 @@ CC = gcc
 CPP = g++
 CFLAGS = -O2 -std=c99 -Wall
 CPPFLAGS = -O2 -std=c++11 -Wall
-TARGET = main
-TARGET2 = main_vector
-OBJS = avl.o main.o
+STRUCT1 = main
+STRUCT2 = main_vector
+TARGET = $(STRUCT1) $(STRUCT2)
+OBJ1 = avl.o main.o md5.o
+OBJ2 = main_vector.o md5.o
+OBJS = $(OBJ1) $(OBJ2)
 DEBUG = -DD_INPUT
 
 RM = rm -rf
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CPP) $(CPPFLAGS) $(OBJS) -o $@
+$(STRUCT1): $(OBJ1)
+	$(CPP) $(CPPFLAGS) $(OBJ1) -o $@
 
-$(TARGET2): 
-	$(CPP) $(CPPFLAGS) main_vector.cpp -o $@ 
+$(STRUCT2): $(OBJ2)
+	$(CPP) $(CPPFLAGS) $(OBJ2) -o $@ 
 	
 %.o: %.c
 	$(CC) $(CFLAGS) $(DEBUG) $< -c
@@ -23,11 +26,15 @@ $(TARGET2):
 %.o: %.cpp
 	$(CPP) $(CPPFLAGS) $(DEBUG) $< -c
 
+run1:
+	./$(STRUCT1)
+
+run2:
+	./$(STRUCT2)
+
 cleanall:
 	$(RM) $(TARGET)
-	$(RM) $(TARGET2)
 	$(RM) $(OBJS)
 
 clean:
 	$(RM) $(TARGET)
-	$(RM) $(TARGET2)
