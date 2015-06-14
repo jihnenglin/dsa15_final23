@@ -50,22 +50,19 @@ void merge(Account* a1, Account* a2){
 	std::vector<History*>* new_history = new std::vector<History*>;
 	unsigned int i = 0, j = 0;
 	while (i < (*a1->history).size() && j < (*a2->history).size()){
-		if((*a1->history)[i] < (*a2->history)[j]){
+		if(*(*a1->history)[i] < *(*a2->history)[j]){
 			(*new_history).push_back((*a1->history)[i]);
 			i++;
-			continue;
 		}
-		else if((*a1->history)[i] == (*a2->history)[j]){
+		else if(*(*a1->history)[i] == *(*a2->history)[j]){
 			(*new_history).push_back((*a1->history)[i]);
 			(*new_history).push_back((*a2->history)[j]);
 			i++;
 			j++;
-			continue;
 		}
 		else{
 			(*new_history).push_back((*a2->history)[j]);
 			j++;
-			continue;
 		}
 	}
 	while(i < (*a1->history).size()){
