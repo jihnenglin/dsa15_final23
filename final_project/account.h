@@ -45,6 +45,7 @@ public:
 	}
 };
 
+//Only move the money and history of a2 to a1. The change of history and the deletion of a2 need to be performed by yourself.
 void merge(Account* a1, Account* a2){
 	a1->money += a2->money;
 	std::vector<History*>* new_history = new std::vector<History*>;
@@ -75,7 +76,6 @@ void merge(Account* a1, Account* a2){
 	}
 	delete a1->history;
 	a1->history = new_history;
-	delete a2;
 }
 
 int score(std::string &u, std::string &v){
