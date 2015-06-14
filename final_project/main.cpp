@@ -22,6 +22,20 @@ int compare(const void *pa, const void *pb, void *param){
 		return 0;
 }
 
+int search(vector<History*>* history, int& time){
+	int left = 0, right = (int) (*history).size() - 1;
+	while(left <= right){
+        	int mid = left + (right - left) / 2;
+        	if((*history)[mid]->time == time)
+            		return mid;
+        	else if((*history)[mid]->time > time)
+            		right = mid - 1;
+        	else
+            		left = mid + 1;
+	}
+	return -1;
+}
+
 int main(){
 	char id1[MAXL], id2[MAXL], p[MAXL], p2[MAXL], request[MAXL]; // input id and password
 	long long int money; // input money
@@ -90,6 +104,16 @@ int main(){
 			else if(account2->password.compare(string(p2)) != 0)
 				cout << "wrong password2" << endl;
 			else{
+				for(unsigned int j = 0; j < (*account2->history).size(); j++){
+        				Account* tmp = new Account((*account2->history)[j]->id, string(""));
+        				Account* account = (Account *)avl_find(tree, tmp);
+			        	int k = search(account->history, (*account2->history)[j]->time);
+			            	if(k == -1)
+						cout << "search error" <<endl;
+					else
+						(*account->history)[k]->id = account1->id;
+			        	delete tmp;
+				}
 				merge(account1, account2);
 				cout << "success, " << account1->id << " has " << account1->money << " dollars" << endl;
 			}
