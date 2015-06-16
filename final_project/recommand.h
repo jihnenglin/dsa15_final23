@@ -105,7 +105,8 @@ void Recommand::getRank(Rank& r, std::string& o) {
 	rank   = &r;
 	origin = &o;
 	
-	int sum = 0, delta = 1, diff, i;
+	int sum = 0, delta = 1, diff;
+	unsigned int i;
 	int start_len, end_len;
 	start_len = end_len = origin->length();	
 
@@ -121,7 +122,7 @@ void Recommand::getRank(Rank& r, std::string& o) {
 			delta++;		
 		}
 		diff = (origin->length()-start_len)*(origin->length()-start_len+1)/2;
-		for(len=start_len; len<origin->length(); len++) {
+		for(len=start_len; len<(int)origin->length(); len++) {
 			
 			minlen = len;
 			for(i=0; i<MAXLENGTH; i++)
@@ -159,19 +160,19 @@ void Recommand::setUnlock(int max, int point) {
 void Recommand::testSet() {
 	std::string str;
 	str.resize(len);
-	int i;
-	for(i=0; i<len; i++) {
+	unsigned int i;
+	for(i=0; i<(unsigned int)len; i++) {
 		if(!unlock[i])
 			str[i] = (*origin)[i];
 		else
-			str[i] = (*origin)[i]!='0' ? '0' : '1' ;
+			str[i] = i<origin->length() && (*origin)[i]=='0' ? '1' : '0' ;
 	}
 	
-	int start;
+	unsigned int start;
 	
 	start = len-1;
 	while(!unlock[start])
-		if((--start)<0) { // all lock
+		if((start--)==0) { // all lock
 			if(valid(str)) {
 				//std::cout<<str<<std::endl;			
 				rank->update(str,score);
@@ -186,14 +187,14 @@ void Recommand::testSet() {
 				return;	//no need for further testing in this set
 		}
 		i = start;
-		plus(str[i],(*origin)[i]);
+		plus(str[i],i<origin->length() ? (*origin)[i] : '\0');
 		
 		while(str[i] > 'z') {
-			str[i] = (*origin)[i]!='0' ? '0' : '1' ;
+			str[i] = i<origin->length() && (*origin)[i]=='0' ? '1' : '0' ;
 			do
 				if(i<=0) return;
 			while(!unlock[--i]);
-			plus(str[i],(*origin)[i]);
+			plus(str[i],i<origin->length() ? (*origin)[i] : '\0');
 		}	
 	}
 }
