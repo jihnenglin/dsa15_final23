@@ -2,6 +2,8 @@
 #include <string>
 #include <algorithm>
 
+bool match_wild(const std::string& str, const std::string& wild);
+
 class Rank {
 
 public:
@@ -196,5 +198,42 @@ void Recommand::testSet() {
 			while(!unlock[--i]);
 			plus(str[i],i<origin->length() ? (*origin)[i] : '\0');
 		}	
+	}
+}
+
+bool match_wild(const std::string& str, const std::string& wild) {
+	char *p = (char*)str.c_str(); //postfix 
+	char *s = (char*)wild.c_str(); //states
+	
+	char *stack[256];
+	int i = 0;
+	
+	while(1) {
+		//printf("p:[%c] s:[%c]\n",*p,*s);
+		if(*p==0) {
+			if(*s==0||*s=='*')
+				return true;
+		}
+		else if(*s!=0) {
+			if(*s=='*') {
+				stack[i++] = p+1;
+				stack[i++] = s;
+				s = s+1;
+				continue;
+			}			
+			else if(*s=='?'){
+				p++;s++;
+				continue;
+			}
+			
+			else if(*p==*s) {
+				p++;s++;
+				continue;
+			}
+		}
+		if(i<=0)
+			return false;
+		s = stack[--i];
+		p = stack[--i];
 	}
 }
