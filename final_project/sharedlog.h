@@ -11,12 +11,12 @@
 
 class Transfer{
 public:
-	std::string *from;
-	std::string *to;
+	const std::string *from;
+	const std::string *to;
 	long long int money;
 	int time;
 	
-	Transfer(std::string& _from, std::string& _to, long long int _money, int _time):
+	Transfer(const std::string& _from, const std::string& _to, long long int _money, int _time):
 	from(&_from),to(&_to),money(_money),time(_time) {};	
 };
 
@@ -33,12 +33,12 @@ public:
 
 class Account{
 public:
-	std::string& id;
+	const std::string &id;
 	std::string password;
 	long long int money;
 	std::vector<History> history;
 	
-	Account(std::string _id, std::string _password):id(_id), password(_password), money(0){
+	Account(const std::string &_id, std::string _password):id(_id), password(_password), money(0){
 	};
 	~Account() {};
 	
@@ -47,7 +47,8 @@ public:
 	void	    search(const std::string& id);
 	
 	bool operator<(const Account& account2) const{
-		return this->id.compare(account2.id)<0;}
+		return this->id.compare(account2.id)<0;
+	}
 	bool operator>(const Account& account2) const{
 		return this->id.compare(account2.id)>0;}
 };	
@@ -95,29 +96,29 @@ void Account::merge(Account *a2) {
 }
 
 void Account::search(const std::string& id) {
-	int count = 0;
+	bool record = false;
 	Transfer *ptr;
 	for(unsigned int i=0; i<history.size(); i++) {
 		if(history[i].type==in) {
 			ptr = history[i].transfer;
 			if( ptr->from->compare(id)==0 ) {
 				std::cout << "From " << ptr->from << " " << ptr->money <<std::endl;
-				count++;
+				record = true;
 			}
 		}
 		else {
 			ptr = history[i].transfer;
 			if( ptr->to->compare(id)==0 ) {
 				std::cout << "To " << ptr->to << " " << ptr->money <<std::endl;
-				count++;
+				record = true;
 			}
 		}
 	}
-	if(count==0)
+	if(!record)
 		std::cout << "no record" <<std::endl;
 }
 
-int score(std::string &u, std::string &v){
+int score(const std::string &u, const std::string &v){
 	int L = std::min(u.size(), v.size());
 	int dL = abs(int(u.size()) - int(v.size()));
 	int s = 0;
@@ -128,6 +129,3 @@ int score(std::string &u, std::string &v){
 	return s;
 }
 
-int main() {
-	return 0;
-}

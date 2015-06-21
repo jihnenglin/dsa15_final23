@@ -26,13 +26,13 @@ class Recommend {
 	
 public:
 	Recommend(bool (*func) (const std::string&)) : valid(func) {};
-	void getRank(Rank&, std::string& origin);
+	void getRank(Rank&, const std::string& origin);
 	
 private:	
 	static const int MAXLENGTH = 100;
 	bool unlock[MAXLENGTH];
 	bool (*valid) (const std::string&); //return true if target string is valid
-	std::string* origin;
+	const std::string* origin;
 	Rank* rank;
 	int len,minlen;
 	int score;
@@ -102,7 +102,7 @@ void Recommend::plus(char & c, char e) {
 	}while(c==e);
 }
 
-void Recommend::getRank(Rank& r, std::string& o) {
+void Recommend::getRank(Rank& r, const std::string& o) {
 	
 	rank   = &r;
 	origin = &o;
