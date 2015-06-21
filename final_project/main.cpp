@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "account.h"
+#include "recommend.h"
 extern "C"{
 #include "avl.h"
 };
@@ -23,6 +24,8 @@ int compare(const void *pa, const void *pb, void *param){
 		return 0;
 }
 
+struct avl_table* tree = avl_create(compare, NULL, NULL);
+
 int search(vector<History*>* history, int& time){
 	int left = 0, right = (int) (*history).size() - 1;
 	while(left <= right){
@@ -37,12 +40,41 @@ int search(vector<History*>* history, int& time){
 	return -1;
 }
 
+bool find(const string& id){
+	Account* tmp = new Account(id, string(""));
+	if(avl_find(tree, tmp) == NULL){
+		delete tmp;
+		return true;
+	}
+	else{
+		delete tmp;
+		return false;
+	}
+}
+
+void inorder_recommend(const struct avl_node *node, Rank& r, const string& origin){
+	if(node == NULL) return;
+	if(node->avl_link[0] != NULL)
+		inorder_recommend(node->avl_link[0], r, origin);
+	r.update(((Account *)node->avl_data)->id, score(((Account *)node->avl_data)->id, origin));
+	if(node->avl_link[1] != NULL)
+		inorder_recommend(node->avl_link[1], r, origin);
+}
+
+void inorder_wild(const struct avl_node *node, vector<Account *>* v, const string& wild){
+	if(node == NULL) return;
+	if(node->avl_link[0] != NULL)
+		inorder_wild(node->avl_link[0], v, wild);
+	if(match_wild(((Account *)node->avl_data)->id, wild))
+		v->push_back((Account *)node->avl_data);
+	if(node->avl_link[1] != NULL)
+		inorder_wild(node->avl_link[1], v, wild);
+}
+
 int main(){
 	char id1[MAXL], id2[MAXL], p[MAXL], p2[MAXL], request[MAXL]; // input id and password
 	long long int money; // input money
 
-	struct avl_table *tree;
-	tree = avl_create(compare, NULL, NULL);
 	Account *current = NULL;
 	int time = 0;
 
@@ -70,8 +102,12 @@ int main(){
 				cout << "success" << endl;
 			}
 			else{
-				cout << "ID " << account->id << " exists, " << endl;
+				cout << "ID " << account->id << " exists, ";
 				//recommend 10 unused IDs
+				Rank rank;
+				Recommend recommend(find);
+				recommend.getRank(rank, account->id);
+				rank.print();
 				delete account;
 			}
 
@@ -109,10 +145,10 @@ int main(){
 				for(unsigned int j = 0; j < (*account2->history).size(); j++){
         				Account* tmp = new Account((*account2->history)[j]->id, string(""));
         				Account* account = (Account *)avl_find(tree, tmp);
+					if(account == NULL)
+						continue;
 			        	int k = search(account->history, (*account2->history)[j]->time);
-			            	if(k == -1)
-						cout << "search error" <<endl;
-					else
+			            	if(k != -1)
 						(*account->history)[k]->id = account1->id;
 			        	delete tmp;
 				}
@@ -141,8 +177,11 @@ int main(){
 
 			Account* account = (Account *)avl_find(tree, tmp);
 			if(account == NULL){
-				cout << "ID " << tmp->id << " not found" << endl;
+				cout << "ID " << tmp->id << " not found, ";
 				//recommend 10 existing IDs
+				Rank rank;
+				inorder_recommend(tree->avl_root, rank, tmp->id);
+				rank.print();
 			}
 			else if(money > current->money)
 				cout << "fail, " << current->money << " dollars only in current account" << endl;
@@ -159,18 +198,30 @@ int main(){
 			delete tmp;
 		}else if(strcmp(request, "find") == 0){
 			scanf("%s", id1);
-#ifdef D_INPUT
-			printf("find %s\n", id1);
-#endif
-			// do something here
+			vector<Account *>* wild = new vector<Account *>;
+			inorder_wild(tree->avl_root, wild, string(id1));
+			if(wild->size() != 0){
+				cout << (*wild)[0]->id;
+				for(unsigned int i = 1; i < wild->size(); i++)
+					cout << ',' << (*wild)[i]->id;
+			}
+			cout << endl;
+			delete wild;
 		}else if(strcmp(request, "search") == 0){
 			scanf("%s", id1);
+			bool record = false;
 			for(unsigned int i = 0; i < (*current->history).size(); i++){
-				if((*current->history)[i]->id.compare(id1) == 0 && (*current->history)[i]->type == in)
+				if((*current->history)[i]->id.compare(id1) == 0 && (*current->history)[i]->type == in){
 					cout << "From " << (*current->history)[i]->id << " " << (*current->history)[i]->money <<endl;
-				else if((*current->history)[i]->id.compare(id1) == 0 && (*current->history)[i]->type == out)
+					record = true;
+				}
+				else if((*current->history)[i]->id.compare(id1) == 0 && (*current->history)[i]->type == out){
 					cout << "To " << (*current->history)[i]->id << " " << (*current->history)[i]->money <<endl;
+					record = true;
+				}
 			}
+			if(!record)
+				cout << "no record" << endl;
 		}else{
 			cout << "error input\n";
 		}
