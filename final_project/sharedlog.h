@@ -102,14 +102,14 @@ void Account::search(const std::string& id) {
 		if(history[i].type==in) {
 			ptr = history[i].transfer;
 			if( ptr->from->compare(id)==0 ) {
-				std::cout << "From " << ptr->from << " " << ptr->money <<std::endl;
+				std::cout << "From " << *(ptr->from) << " " << ptr->money <<std::endl;
 				record = true;
 			}
 		}
 		else {
 			ptr = history[i].transfer;
 			if( ptr->to->compare(id)==0 ) {
-				std::cout << "To " << ptr->to << " " << ptr->money <<std::endl;
+				std::cout << "To " << *(ptr->to) << " " << ptr->money <<std::endl;
 				record = true;
 			}
 		}

@@ -59,7 +59,7 @@ int main(){
 	
 	Account *current = NULL;
 	int time = 0;
-//
+
 	while(scanf("%s", request) != EOF){
 		if(strcmp(request, "login") == 0){
 			cin>>id1>>p;
@@ -129,11 +129,9 @@ int main(){
 			}
 		}else if(strcmp(request, "deposit") == 0){
 			cin>>money;
-			//scanf("%I64d", &money);
 			current->money += money;
 			cout << "success, " << current->money << " dollars in current account" << endl;
 		}else if(strcmp(request, "withdraw") == 0){
-			//scanf("%I64d", &money);
 			cin>>money;
 			if(money > current->money)
 				cout << "fail, " << current->money << " dollars only in current account" << endl;
@@ -143,8 +141,7 @@ int main(){
 			}
 		}else if(strcmp(request, "transfer") == 0){
 			cin>>id1>>money;
-			//scanf("%s%I64d", id1, &money);
-			Account tmp(id1, string(""));
+			Account tmp(id1, nullstr);
 
 			Account* account = (Account *)avl_find(tree, &tmp);
 			if(account == NULL){
@@ -178,8 +175,5 @@ int main(){
 			cout << "error input\n";
 		}
 	}
-
-	//delete bptr;
-
 	return 0;
 }
