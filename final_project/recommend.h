@@ -31,7 +31,7 @@ public:
 private:	
 	static const int MAXLENGTH = 100;
 	bool unlock[MAXLENGTH];
-	bool (*valid) (const std::string&); //return true if target string is vaild
+	bool (*valid) (const std::string&); //return true if target string is valid
 	std::string* origin;
 	Rank* rank;
 	int len,minlen;
@@ -72,8 +72,8 @@ int Rank::update(const std::string &newstr, int newscore)
 	//update rank
 	int i = _size-1;
 	while(i>0) {		
-		if(score[rank[i-1]]>score[rank[i]] ||
-		   buffer[rank[i-1]].compare(buffer[rank[i]])<0)
+		if(score[rank[i-1]]<score[rank[i]] ||
+		   (score[rank[i-1]]==score[rank[i]] && buffer[rank[i-1]].compare(buffer[rank[i]])<0))
 			break;
 		std::swap(rank[i-1],rank[i]);
 		i--;
@@ -211,7 +211,7 @@ bool match_wild(const std::string& str, const std::string& wild) {
 	while(1) {
 		//printf("p:[%c] s:[%c]\n",*p,*s);
 		if(*p==0) {
-			if(*s==0||*s=='*')
+			if(*s==0||(*s=='*' && *(s+1)==0))
 				return true;
 		}
 		else if(*s!=0) {
