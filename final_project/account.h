@@ -78,7 +78,7 @@ void merge(Account* a1, Account* a2){
 	a1->history = new_history;
 }
 
-int score(std::string &u, std::string &v){
+int score(const std::string &u, const std::string &v){
 	int L = std::min(u.size(), v.size());
 	int dL = abs(int(u.size()) - int(v.size()));
 	int s = 0;
