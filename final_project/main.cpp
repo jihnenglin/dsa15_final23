@@ -61,14 +61,14 @@ void inorder_recommend(const struct avl_node *node, Rank& r, const string& origi
 		inorder_recommend(node->avl_link[1], r, origin);
 }
 
-void inorder_wild(const struct avl_node *node, vector<Account *>* v, const string& wild, int& pos){
+void inorder_wild(const struct avl_node *node, vector<Account *>* v, const string& wild){
 	if(node == NULL) return;
-	if(node->avl_link[0] != NULL && ((Account *)node->avl_data)->id.compare(0, pos, wild) >= 0)
-		inorder_wild(node->avl_link[0], v, wild, pos);
+	if(node->avl_link[0] != NULL)
+		inorder_wild(node->avl_link[0], v, wild);
 	if(match_wild(((Account *)node->avl_data)->id, wild))
 		v->push_back((Account *)node->avl_data);
-	if(node->avl_link[1] != NULL && ((Account *)node->avl_data)->id.compare(0, pos, wild) <= 0)
-		inorder_wild(node->avl_link[1], v, wild, pos);
+	if(node->avl_link[1] != NULL)
+		inorder_wild(node->avl_link[1], v, wild);
 }
 
 MemoryPool* Account::pool = new MemoryPool(sizeof(Account),5000);
@@ -201,8 +201,7 @@ int main(){
 		}else if(strcmp(request, "find") == 0){
 			scanf("%s", id1);
 			vector<Account *>* wild = new vector<Account *>;
-			int pos = string(id1).find_first_of("*?");
-			inorder_wild(tree->avl_root, wild, string(id1), pos);
+			inorder_wild(tree->avl_root, wild, string(id1));
 			if(wild->size() != 0){
 				cout << (*wild)[0]->id;
 				for(unsigned int i = 1; i < wild->size(); i++)
@@ -230,7 +229,6 @@ int main(){
 		}
 	}
 
-	//delete bptr;
 
 	return 0;
 }
