@@ -71,6 +71,8 @@ void inorder_wild(const struct avl_node *node, vector<Account *>* v, const strin
 		inorder_wild(node->avl_link[1], v, wild, pos);
 }
 
+MemoryPool* Account::pool = new MemoryPool(sizeof(Account),5000);
+
 int main(){
 	char id1[MAXL], id2[MAXL], p[MAXL], p2[MAXL], request[MAXL]; // input id and password
 	long long int money; // input money

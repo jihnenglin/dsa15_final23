@@ -1,6 +1,4 @@
 #include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "sharedlog.h"
 #include "recommend.h"
@@ -11,6 +9,7 @@ extern "C"{
 #define MAXL 105
 
 using namespace std;
+
 
 int compare(const void *pa, const void *pb, void *param){
 	const Account *a = (const Account *)pa;
@@ -27,9 +26,42 @@ int compare(const void *pa, const void *pb, void *param){
 struct avl_table* tree = avl_create(compare, NULL, NULL);
 
 bool find(const string& id){
-	Account tmp(id, string(""));
+	string nullstr("");
+	Account tmp(id, nullstr);
 	return avl_find(tree, &tmp)==NULL;
 }
+/*
+void inorder_recommend(struct avl_node* node, Rank& r, const string& origin){
+	struct avl_node *stack[32];
+	int size = 0;
+	while(size>0 || node) {
+		if(node) {
+			stack[size++] = node;
+			node = node->avl_link[0];		
+		} else {
+			node = stack[--size];
+			r.update(((Account *)node->avl_data)->id, score(((Account *)node->avl_data)->id, origin));
+			node = node->avl_link[1];
+		}
+	}	
+}
+
+void inorder_wild(struct avl_node *node, vector<Account *>* v, const string& wild, const unsigned int& pos){
+	struct avl_node *stack[32];
+	int size = 0;
+	while(size>0 || node) {
+		if(node) {
+			stack[size++] = node;
+			node = node->avl_link[0];		
+		} else {
+			node = stack[--size];
+			if(match_wild(((Account *)node->avl_data)->id, wild))
+				v->push_back((Account *)node->avl_data);
+			node = node->avl_link[1];
+		}
+	}
+}
+*/
 
 void inorder_recommend(const struct avl_node *node, Rank& r, const string& origin){
 	if(node == NULL) return;
@@ -40,14 +72,16 @@ void inorder_recommend(const struct avl_node *node, Rank& r, const string& origi
 		inorder_recommend(node->avl_link[1], r, origin);
 }
 
-void inorder_wild(const struct avl_node *node, vector<Account *>* v, const string& wild){
-	if(node == NULL) return;
-	if(node->avl_link[0] != NULL)
-		inorder_wild(node->avl_link[0], v, wild);
-	if(match_wild(((Account *)node->avl_data)->id, wild))
+void inorder_wild(const struct avl_node *node, vector<Account *>* v, const string& wild, const unsigned int pos){
+ 	if(node == NULL) return;
+ 	const string &id = ((Account *)node->avl_data)->id;
+	const int ret = id.compare(0, pos<id.size()?pos:id.size(), wild, 0, pos<id.size()?pos:id.size());
+	if(node->avl_link[0] != NULL && ret >= 0)
+ 		inorder_wild(node->avl_link[0], v, wild, pos);
+ 	if(match_wild(id, wild))
 		v->push_back((Account *)node->avl_data);
-	if(node->avl_link[1] != NULL)
-		inorder_wild(node->avl_link[1], v, wild);
+ 	if(node->avl_link[1] != NULL && ret <= 0)
+ 		inorder_wild(node->avl_link[1], v, wild, pos);
 }
 
 int main(){
@@ -160,7 +194,8 @@ int main(){
 		}else if(strcmp(request, "find") == 0){
 			cin>>id1;
 			vector<Account *>* wild = new vector<Account *>;
-			inorder_wild(tree->avl_root, wild, id1);
+			unsigned int pos = string(id1).find_first_of("*?");
+			inorder_wild(tree->avl_root, wild, id1,pos==string::npos?(wild->size()-1):pos);
 			if(wild->size() != 0){
 				cout << (*wild)[0]->id;
 				for(unsigned int i = 1; i < wild->size(); i++)
