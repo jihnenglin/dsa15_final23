@@ -23,8 +23,17 @@ int compare(const void *pa, const void *pb, void *param){
 	else
 		return 0;
 }
+MemoryPool* Account::pool	= new MemoryPool(sizeof(Account),5000);
+MemoryPool* tree_pool		= new MemoryPool(sizeof(avl_node),5000);
 
-struct avl_table* tree = avl_create(compare, NULL, NULL);
+void *avl_poolalloc (struct libavl_allocator *allocator, size_t size)
+{	return tree_pool->alloc(size);	}
+void avl_poolfree (struct libavl_allocator *allocator, void *block)
+{	tree_pool->dealloc(block);		}
+struct libavl_allocator avl_allocator_pool =
+{	avl_poolalloc,avl_poolfree		};
+
+struct avl_table* tree = avl_create(compare, NULL, &avl_allocator_pool);
 
 int search(vector<History*>* history, int& time){
 	int left = 0, right = (int) (*history).size() - 1;
@@ -70,8 +79,6 @@ void inorder_wild(const struct avl_node *node, vector<Account *>* v, const strin
 	if(node->avl_link[1] != NULL)
 		inorder_wild(node->avl_link[1], v, wild);
 }
-
-MemoryPool* Account::pool = new MemoryPool(sizeof(Account),5000);
 
 int main(){
 	char id1[MAXL], id2[MAXL], p[MAXL], p2[MAXL], request[MAXL]; // input id and password
