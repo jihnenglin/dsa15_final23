@@ -2,8 +2,8 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
-
 #include <iostream>
+#include "pool.h"
 
 #define in 1
 #define out 0
@@ -51,6 +51,9 @@ public:
 	}
 	bool operator>(const Account& account2) const{
 		return this->id.compare(account2.id)>0;}
+	static MemoryPool *pool;
+	static void *operator new(size_t size){ return pool->alloc(size); }
+	static void operator delete(void *p){ pool->dealloc(p);	}
 };	
 
 Transfer* Account::transfer(Account *that, long long int _money, int _time) {
