@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "account.h"
+#include "recommend.h"
+
 #include <vector>
 #include "md5.h"
 #define MAXL 105
@@ -46,6 +48,31 @@ Account* vector_delete(Datas &list, Account* account){
 	return account;
 }
 
+bool find(const string& id){
+	Account* tmp = new Account(id, string(""));
+	if(vector_find(tree, tmp) == NULL){
+		delete tmp;
+		return true;
+	}
+	else{
+		delete tmp;
+		return false;
+	}
+}
+
+void inorder_recommend(Datas &list, Rank& r, const string& origin){
+	for(i = 0; i < (int)list.size(); i++){
+		r.update(list[i]->id, score(list[i]->id, origin));
+	}
+}
+
+void inorder_wild(Datas &list, vector<Account *>* v, const string& wild){
+	for(i = 0; i < (int)list.size(); i++){
+		if(match_wild(list[i]->id, wild))
+			v->push_back(list[i]);
+	}
+}
+
 int main(){
 	char id1[MAXL], id2[MAXL], p[MAXL], p2[MAXL], request[MAXL]; // input id and password
 	long long int money; // input money
@@ -78,6 +105,10 @@ int main(){
 			}else{
 				cout << "ID " << account->id << " exists, " << endl;
 				//recommend 10 unused IDs
+				Rank rank;
+				Recommend recommend(find);
+				recommend.getRank(rank, account->id);
+				rank.print();
 				delete account;
 			}
 
@@ -113,14 +144,17 @@ int main(){
 				cout << "wrong password2" << endl;
 			else{
 				for(unsigned int j = 0; j < (*account2->history).size(); j++){
-        				Account* tmp = new Account((*account2->history)[j]->id, string(""));
-        				Account* account = vector_find(list, tmp);
-			        	int k = search(account->history, (*account2->history)[j]->time);
-			            	if(k == -1)
-						cout << "search error" <<endl;
-					else
+        			Account* tmp = new Account((*account2->history)[j]->id, string(""));
+        			Account* account = vector_find(list, tmp);
+			        if(account == NULL){
+						continue;
+					}
+					int k = search(account->history, (*account2->history)[j]->time);
+			       	if(k == -1){
+						//cout << "search error" <<endl;
 						(*account->history)[k]->id = account1->id;
-			        	delete tmp;
+					}
+					delete tmp;
 				}
 				merge(account1, account2);
 				account2 = vector_delete(list, account2);
@@ -149,6 +183,9 @@ int main(){
 			if(account == NULL){
 				cout << "ID " << tmp->id << " not found" << endl;
 				//recommend 10 existing IDs
+				Rank rank;
+				inorder_recommend(list, rank, tmp->id);
+				rank.print();
 			}
 			else if(money > current->money)
 				cout << "fail, " << current->money << " dollars only in current account" << endl;
@@ -165,24 +202,34 @@ int main(){
 			delete tmp;
 		}else if(strcmp(request, "find") == 0){
 			scanf("%s", id1);
-#ifdef D_INPUT
-			printf("find %s\n", id1);
-#endif
-			// do something here
+			vector<Account *>* wild = new vector<Account *>;
+			inorder_wild(list, wild, string(id1));
+			if(wild->size() != 0){
+				cout << (*wild)[0]->id;
+				for(unsigned int i = 1; i < wild->size(); i++)
+					cout << ',' << (*wild)[i]->id;
+			}
+			cout << endl;
+			delete wild;
 		}else if(strcmp(request, "search") == 0){
 			scanf("%s", id1);
+			bool record = false;
 			for(unsigned int i = 0; i < (*current->history).size(); i++){
-				if((*current->history)[i]->id.compare(id1) == 0 && (*current->history)[i]->type == in)
+				if((*current->history)[i]->id.compare(id1) == 0 && (*current->history)[i]->type == in){
 					cout << "From " << (*current->history)[i]->id << " " << (*current->history)[i]->money <<endl;
-				else if((*current->history)[i]->id.compare(id1) == 0 && (*current->history)[i]->type == out)
+					record = true;
+				}else if((*current->history)[i]->id.compare(id1) == 0 && (*current->history)[i]->type == out){
 					cout << "To " << (*current->history)[i]->id << " " << (*current->history)[i]->money <<endl;
+					record = true;
+				}
+			}
+			if(!record){
+				cout << "no record" << endl;
 			}
 		}else{
 			cout << "error input\n";
 		}
 	}
-
-	//delete bptr;
 
 	return 0;
 }
