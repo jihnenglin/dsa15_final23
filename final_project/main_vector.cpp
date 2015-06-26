@@ -50,7 +50,7 @@ Account* vector_delete(Datas &list, Account* account){
 
 bool find(const string& id){
 	Account* tmp = new Account(id, string(""));
-	if(vector_find(tree, tmp) == NULL){
+	if(vector_find(list, tmp) == NULL){
 		delete tmp;
 		return true;
 	}
@@ -61,23 +61,25 @@ bool find(const string& id){
 }
 
 void inorder_recommend(Datas &list, Rank& r, const string& origin){
-	for(i = 0; i < (int)list.size(); i++){
+	for(int i = 0; i < (int)list.size(); i++){
 		r.update(list[i]->id, score(list[i]->id, origin));
 	}
 }
 
 void inorder_wild(Datas &list, vector<Account *>* v, const string& wild){
-	for(i = 0; i < (int)list.size(); i++){
+	for(int i = 0; i < (int)list.size(); i++){
 		if(match_wild(list[i]->id, wild))
 			v->push_back(list[i]);
 	}
 }
 
+Datas list;
+
 int main(){
 	char id1[MAXL], id2[MAXL], p[MAXL], p2[MAXL], request[MAXL]; // input id and password
 	long long int money; // input money
 
-	Datas list;
+	
 	int time = 0;
 	Account* current = NULL;
 	while(scanf("%s", request) != EOF){
