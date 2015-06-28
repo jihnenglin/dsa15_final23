@@ -10,15 +10,6 @@
 
 using namespace std;
 
-
-int compare(const void *pa, const void *pb, void *param){
-	if(*(const Account*)pa < *(const Account*)pb)
-		return -1;
-	else if(*(const Account*)pa > *(const Account*)pb)
-		return 1;
-	else
-		return 0;
-}
 MemoryPool* Account::pool	= new MemoryPool(sizeof(Account),5003);
 typedef std::unordered_map<std::string,Account*> Accmap;
 Accmap accmap;
@@ -32,24 +23,30 @@ void inorder_recommend(const Accmap &accmap, Rank& r, const string& origin){
 		r.update(it->first,score(it->first,origin));
 }
 
-void inorder_wild(const Accmap &accmap, vector<Account *>* v, const string& wild){
+void inorder_wild(Account *current, vector<Account *>* v, const string& wild){
 	for(Accmap::const_iterator it = accmap.begin(); it!=accmap.end(); ++it) {
-		if(match_wild(it->first, wild))
+		if(match_wild(it->first, wild)&&it->second!=current)
 			v->push_back(it->second);
 	}
 }
+
+bool accptrcmp(Account *a1,Account *a2) {
+	return *a1 < *a2;
+}
+
 
 int main(){
 	char request[MAXL]; 
 	string id1,id2,p,p2; // input id and password
 	long long int money; // input money
 	vector<Transfer*> transfer_log; //all transfer log
+	vector<string*> name_log;
 	
 	Account *current = NULL;
 	int time = 0;
 	
 	Accmap::const_iterator it1,it2;
-	accmap.max_load_factor(0.9);
+	accmap.max_load_factor(0.8);
 	accmap.reserve(5003);
 
 	while(scanf("%s", request) != EOF){
@@ -70,7 +67,8 @@ int main(){
 			
 			it1 = accmap.find(id1);
 			if(it1 == accmap.end()){
-				Account* account = new Account(*(new string(id1)), md5(p));
+				name_log.push_back(new string(id1));
+				Account* account = new Account(*name_log.back(), md5(p));
 				accmap.insert({id1,account});
 				cout << "success" << endl;
 			}
@@ -150,15 +148,15 @@ int main(){
 			}
 		}else if(strcmp(request, "find") == 0){
 			cin>>id1;
-			vector<Account *>* wild = new vector<Account *>;
-			inorder_wild(accmap, wild, id1);
-			if(wild->size() != 0){
-				cout << (*wild)[0]->id;
-				for(unsigned int i = 1; i < wild->size(); i++)
-					cout << ',' << (*wild)[i]->id;
+			vector<Account *> wild;
+			inorder_wild(current, &wild, id1);
+			std::sort(wild.begin(),wild.end(),accptrcmp);
+			if(wild.size() != 0){
+				cout << wild[0]->id;
+				for(unsigned int i = 1; i < wild.size(); i++)
+					cout << ',' << wild[i]->id;
 			}
 			cout << endl;
-			delete wild;
 		}else if(strcmp(request, "search") == 0){
 			cin>>id1;
 			current->search(id1);
