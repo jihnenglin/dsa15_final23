@@ -6,7 +6,7 @@ STRUCT1 = main
 STRUCT2 = main_vector
 STRUCT3 = main_log
 STRUCT4 = main_hash
-TARGET = $(STRUCT1) $(STRUCT2) $(STRUCT3) $(STRUCT4)
+TARGET = $(STRUCT2)
 OBJ1 = avl.o main.o md5.o
 OBJ2 = main_vector.o md5.o
 OBJ3 = avl.o main_log.o md5.o
@@ -18,7 +18,7 @@ RM = rm -rf
 
 .PHONY: run1 run2 clean cleanall
 
-all: $(TARGET)
+all: $(STRUCT1) $(STRUCT2) $(STRUCT3) $(STRUCT4)
 
 $(STRUCT1): $(OBJ1)
 	$(CPP) $(CPPFLAGS) $(OBJ1) -o $@
@@ -41,8 +41,12 @@ run1:
 run2:
 	./$(STRUCT2)
 
+run:
+	./$(TARGET) <../test_data/test_in_small.txt >../test_data/out.txt
+	diff ../test_data/out.txt ../test_data/test_out_small.txt
+
 cleanall:
-	$(RM) $(TARGET)
+	$(RM) $(STRUCT1) $(STRUCT2) $(STRUCT3) $(STRUCT4)
 	$(RM) $(OBJS)
 
 clean:

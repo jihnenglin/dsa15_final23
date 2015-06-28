@@ -45,8 +45,8 @@ Account* vector_delete(Datas &list, Account* account){
 			break;
 		}
 	}
-	
-	list.erase(list.begin() + 1 + i);
+	account = list[i];
+	list.erase(list.begin() + i);
 	return account;
 }
 
@@ -105,7 +105,7 @@ int main(){
 				list.push_back(account);
 				cout << "success" << endl;
 			}else{
-				cout << "ID " << account->id << " exists, " << endl;
+				cout << "ID " << account->id << " exists, ";
 				//recommend 10 unused IDs
 				Rank rank;
 				Recommend recommend(find);
@@ -183,7 +183,7 @@ int main(){
 
 			Account* account = vector_find(list, tmp);
 			if(account == NULL){
-				cout << "ID " << tmp->id << " not found" << endl;
+				cout << "ID " << tmp->id << " not found, ";
 				//recommend 10 existing IDs
 				Rank rank;
 				inorder_recommend(list, rank, tmp->id);
