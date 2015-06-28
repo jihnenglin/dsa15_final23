@@ -154,12 +154,15 @@ int main(){
 				for(unsigned int j = 0; j < (*account2->history).size(); j++){
         				Account* tmp = new Account((*account2->history)[j]->id, string(""));
         				Account* account = (Account *)avl_find(tree, tmp);
-					if(account == NULL)
+					if(account == NULL){
 						continue;
-			        	int k = search(account->history, (*account2->history)[j]->time);
-			            	if(k != -1)
+					}
+			       	int k = search(account->history, (*account2->history)[j]->time);
+			       	
+					if(k != -1){
 						(*account->history)[k]->id = account1->id;
-			        	delete tmp;
+			        }
+					delete tmp;
 				}
 				merge(account1, account2);
 				account2 = (Account *) avl_delete(tree, account2);

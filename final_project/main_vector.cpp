@@ -152,7 +152,7 @@ int main(){
 						continue;
 					}
 					int k = search(account->history, (*account2->history)[j]->time);
-			       	if(k == -1){
+			       	if(k != -1){
 						//cout << "search error" <<endl;
 						(*account->history)[k]->id = account1->id;
 					}
