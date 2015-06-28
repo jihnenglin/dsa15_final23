@@ -70,14 +70,14 @@ void inorder_recommend(const struct avl_node *node, Rank& r, const string& origi
 		inorder_recommend(node->avl_link[1], r, origin);
 }
 
-void inorder_wild(const struct avl_node *node, vector<Account *>* v, const string& wild){
+void inorder_wild(const struct avl_node *node, vector<Account *>* v, const string& wild, Account* current){
 	if(node == NULL) return;
 	if(node->avl_link[0] != NULL)
-		inorder_wild(node->avl_link[0], v, wild);
-	if(match_wild(((Account *)node->avl_data)->id, wild))
+		inorder_wild(node->avl_link[0], v, wild, current);
+	if(match_wild(((Account *)node->avl_data)->id, wild) && (Account *)node->avl_data != current)
 		v->push_back((Account *)node->avl_data);
 	if(node->avl_link[1] != NULL)
-		inorder_wild(node->avl_link[1], v, wild);
+		inorder_wild(node->avl_link[1], v, wild, current);
 }
 
 int main(){
@@ -211,7 +211,7 @@ int main(){
 		}else if(strcmp(request, "find") == 0){
 			scanf("%s", id1);
 			vector<Account *>* wild = new vector<Account *>;
-			inorder_wild(tree->avl_root, wild, string(id1));
+			inorder_wild(tree->avl_root, wild, string(id1), current);
 			if(wild->size() != 0){
 				cout << (*wild)[0]->id;
 				for(unsigned int i = 1; i < wild->size(); i++)
