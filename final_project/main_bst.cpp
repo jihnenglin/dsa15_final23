@@ -5,7 +5,7 @@
 #include "account.h"
 #include "recommend.h"
 extern "C"{
-#include "avl.h"
+#include "bst.h"
 };
 #include "md5.h"
 #define MAXL 105
@@ -24,16 +24,16 @@ int compare(const void *pa, const void *pb, void *param){
 		return 0;
 }
 MemoryPool* Account::pool	= new MemoryPool(sizeof(Account),5000);
-MemoryPool* tree_pool		= new MemoryPool(sizeof(avl_node),5000);
+MemoryPool* tree_pool		= new MemoryPool(sizeof(bst_node),5000);
 
-void *avl_poolalloc (struct libavl_allocator *allocator, size_t size)
+void *bst_poolalloc (struct libavl_allocator *allocator, size_t size)
 {	return tree_pool->alloc(size);	}
-void avl_poolfree (struct libavl_allocator *allocator, void *block)
+void bst_poolfree (struct libavl_allocator *allocator, void *block)
 {	tree_pool->dealloc(block);		}
-struct libavl_allocator avl_allocator_pool =
-{	avl_poolalloc,avl_poolfree		};
+struct libavl_allocator bst_allocator_pool =
+{	bst_poolalloc,bst_poolfree		};
 
-struct avl_table* tree = avl_create(compare, NULL, &avl_allocator_pool);
+struct bst_table* tree = bst_create(compare, NULL, &bst_allocator_pool);
 
 int search(vector<History*>* history, int& time){
 	int left = 0, right = (int) (*history).size() - 1;
@@ -51,7 +51,7 @@ int search(vector<History*>* history, int& time){
 
 bool find(const string& id){
 	Account* tmp = new Account(id, string(""));
-	if(avl_find(tree, tmp) == NULL){
+	if(bst_find(tree, tmp) == NULL){
 		delete tmp;
 		return true;
 	}
@@ -61,23 +61,23 @@ bool find(const string& id){
 	}
 }
 
-void inorder_recommend(const struct avl_node *node, Rank& r, const string& origin){
+void inorder_recommend(const struct bst_node *node, Rank& r, const string& origin){
 	if(node == NULL) return;
-	if(node->avl_link[0] != NULL)
-		inorder_recommend(node->avl_link[0], r, origin);
-	r.update(((Account *)node->avl_data)->id, score(((Account *)node->avl_data)->id, origin));
-	if(node->avl_link[1] != NULL)
-		inorder_recommend(node->avl_link[1], r, origin);
+	if(node->bst_link[0] != NULL)
+		inorder_recommend(node->bst_link[0], r, origin);
+	r.update(((Account *)node->bst_data)->id, score(((Account *)node->bst_data)->id, origin));
+	if(node->bst_link[1] != NULL)
+		inorder_recommend(node->bst_link[1], r, origin);
 }
 
-void inorder_wild(const struct avl_node *node, vector<Account *>* v, const string& wild, Account* current){
+void inorder_wild(const struct bst_node *node, vector<Account *>* v, const string& wild, Account* current){
 	if(node == NULL) return;
-	if(node->avl_link[0] != NULL)
-		inorder_wild(node->avl_link[0], v, wild, current);
-	if(match_wild(((Account *)node->avl_data)->id, wild) && (Account *)node->avl_data != current)
-		v->push_back((Account *)node->avl_data);
-	if(node->avl_link[1] != NULL)
-		inorder_wild(node->avl_link[1], v, wild, current);
+	if(node->bst_link[0] != NULL)
+		inorder_wild(node->bst_link[0], v, wild, current);
+	if(match_wild(((Account *)node->bst_data)->id, wild) && (Account *)node->bst_data != current)
+		v->push_back((Account *)node->bst_data);
+	if(node->bst_link[1] != NULL)
+		inorder_wild(node->bst_link[1], v, wild, current);
 }
 
 int main(){
@@ -92,7 +92,7 @@ int main(){
 			scanf("%s%s", id1, p);
 			Account* tmp = new Account(string(id1), md5(string(p)));
 
-			Account* account = (Account *)avl_find(tree, tmp);
+			Account* account = (Account *)bst_find(tree, tmp);
 			if(account == NULL)
 				cout << "ID " << tmp->id << " not found" << endl;
 			else if(account->password.compare(md5(string(p))) != 0)
@@ -106,8 +106,8 @@ int main(){
 			scanf("%s%s", id1, p);
 			Account* account = new Account(string(id1), md5(string(p)));
 
-			if(avl_find(tree, account) == NULL){
-				avl_probe(tree, account);
+			if(bst_find(tree, account) == NULL){
+				bst_probe(tree, account);
 				cout << "success" << endl;
 			}
 			else{
@@ -124,13 +124,13 @@ int main(){
 			scanf("%s%s", id1, p);
 			Account* tmp = new Account(string(id1), md5(string(p)));
 
-			Account* account = (Account *)avl_find(tree, tmp);
+			Account* account = (Account *)bst_find(tree, tmp);
 			if(account == NULL)
 				cout << "ID " << tmp->id << " not found" << endl;
 			else if(account->password.compare(md5(string(p))) != 0)
 				cout << "wrong password" << endl;
 			else{
-				account = (Account *) avl_delete(tree, account);
+				account = (Account *) bst_delete(tree, account);
 				delete account;
 				cout << "success" << endl;
 			}
@@ -140,8 +140,8 @@ int main(){
 			Account* tmp1 = new Account(string(id1), md5(string(p)));
 			Account* tmp2 = new Account(string(id2), md5(string(p2)));
 
-			Account* account1 = (Account *)avl_find(tree, tmp1);
-			Account* account2 = (Account *)avl_find(tree, tmp2);
+			Account* account1 = (Account *)bst_find(tree, tmp1);
+			Account* account2 = (Account *)bst_find(tree, tmp2);
 			if(account1 == NULL)
 				cout << "ID " << tmp1->id << " not found" << endl;
 			else if(account2 == NULL)
@@ -153,7 +153,7 @@ int main(){
 			else{
 				for(unsigned int j = 0; j < (*account2->history).size(); j++){
         				Account* tmp = new Account((*account2->history)[j]->id, string(""));
-        				Account* account = (Account *)avl_find(tree, tmp);
+        				Account* account = (Account *)bst_find(tree, tmp);
 					if(account == NULL){
 						continue;
 					}
@@ -165,7 +165,7 @@ int main(){
 					delete tmp;
 				}
 				merge(account1, account2);
-				account2 = (Account *) avl_delete(tree, account2);
+				account2 = (Account *) bst_delete(tree, account2);
 				delete account2;
 				cout << "success, " << account1->id << " has " << account1->money << " dollars" << endl;
 			}
@@ -187,12 +187,12 @@ int main(){
 			scanf("%s%lld", id1, &money);
 			Account* tmp = new Account(string(id1), string(""));
 
-			Account* account = (Account *)avl_find(tree, tmp);
+			Account* account = (Account *)bst_find(tree, tmp);
 			if(account == NULL){
 				cout << "ID " << tmp->id << " not found, ";
 				//recommend 10 existing IDs
 				Rank rank;
-				inorder_recommend(tree->avl_root, rank, tmp->id);
+				inorder_recommend(tree->bst_root, rank, tmp->id);
 				rank.print();
 			}
 			else if(money > current->money)
@@ -211,7 +211,7 @@ int main(){
 		}else if(strcmp(request, "find") == 0){
 			scanf("%s", id1);
 			vector<Account *>* wild = new vector<Account *>;
-			inorder_wild(tree->avl_root, wild, string(id1), current);
+			inorder_wild(tree->bst_root, wild, string(id1), current);
 			if(wild->size() != 0){
 				cout << (*wild)[0]->id;
 				for(unsigned int i = 1; i < wild->size(); i++)
