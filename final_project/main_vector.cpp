@@ -10,6 +10,8 @@
 #define MAXL 105
 
 typedef std::vector<Account*> Datas;
+Datas list;
+MemoryPool* Account::pool = new MemoryPool(sizeof(Account),5003);
 
 using namespace std;
 
@@ -72,8 +74,6 @@ void inorder_wild(Datas &list, vector<Account *>* v, const string& wild){
 			v->push_back(list[i]);
 	}
 }
-
-Datas list;
 
 int main(){
 	char id1[MAXL], id2[MAXL], p[MAXL], p2[MAXL], request[MAXL]; // input id and password
@@ -178,7 +178,7 @@ int main(){
 				cout << "success, " << current->money << " dollars left in current account" << endl;
 			}
 		}else if(strcmp(request, "transfer") == 0){
-			scanf("%s%lld", id1, &money);
+			scanf("%s %lld", id1, &money);
 			Account* tmp = new Account(string(id1), string(""));
 
 			Account* account = vector_find(list, tmp);

@@ -22,7 +22,6 @@ all: $(TARGET)
 
 $(STRUCT1): $(OBJ1)
 	$(CPP) $(CPPFLAGS) $(OBJ1) -o $@
-	FOO = $(STRUCT1)
 $(STRUCT2): $(OBJ2)
 	$(CPP) $(CPPFLAGS) $(OBJ2) -o $@ 
 $(STRUCT3): $(OBJ3)
