@@ -75,6 +75,11 @@ void inorder_wild(Datas &list, vector<Account *>* v, const string& wild){
 	}
 }
 
+bool accptrcmp(Account *a1,Account *a2) {
+	return *a1 < *a2;
+}
+
+
 int main(){
 	char id1[MAXL], id2[MAXL], p[MAXL], p2[MAXL], request[MAXL]; // input id and password
 	long long int money; // input money
@@ -204,22 +209,20 @@ int main(){
 			delete tmp;
 		}else if(strcmp(request, "find") == 0){
 			scanf("%s", id1);
-			Account* tmp = new Account(string(id1), string(""));
-
-			Account* account = vector_find(list, tmp);
-			if(current != NULL && account == current){
-				cout << "input current id!\n";
-				continue;
-			}
-			vector<Account *>* wild = new vector<Account *>;
-			inorder_wild(list, wild, string(id1));
-			if(wild->size() != 0){
-				cout << (*wild)[0]->id;
-				for(unsigned int i = 1; i < wild->size(); i++)
-					cout << ',' << (*wild)[i]->id;
+			vector<Account *> wild;
+			inorder_wild(list, &wild, string(id1));
+			for(unsigned int i=0; i<wild.size();i++)
+				if(wild[i]==current) {
+					wild.erase(wild.begin()+i);
+					break;
+				}
+			std::sort(wild.begin(),wild.end(),accptrcmp);
+			if(wild.size() != 0){
+				cout << wild[0]->id;
+				for(unsigned int i = 1; i < wild.size(); i++)
+					cout << ',' << wild[i]->id;
 			}
 			cout << endl;
-			delete wild;
 		}else if(strcmp(request, "search") == 0){
 			scanf("%s", id1);
 			bool record = false;
