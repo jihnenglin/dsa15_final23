@@ -204,6 +204,13 @@ int main(){
 			delete tmp;
 		}else if(strcmp(request, "find") == 0){
 			scanf("%s", id1);
+			Account* tmp = new Account(string(id1), string(""));
+
+			Account* account = vector_find(list, tmp);
+			if(current != NULL && account == current){
+				cout << "input current id!\n";
+				continue;
+			}
 			vector<Account *>* wild = new vector<Account *>;
 			inorder_wild(list, wild, string(id1));
 			if(wild->size() != 0){
