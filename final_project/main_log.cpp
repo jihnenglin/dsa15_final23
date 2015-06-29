@@ -3,7 +3,7 @@
 #include "sharedlog.h"
 #include "recommend.h"
 extern "C"{
-#include "avl.h"
+#include "rb.h"
 };
 #include "md5.h"
 #define MAXL 105
@@ -20,86 +20,88 @@ int compare(const void *pa, const void *pb, void *param){
 		return 0;
 }
 MemoryPool* Account::pool	= new MemoryPool(sizeof(Account),5000);
-MemoryPool* tree_pool		= new MemoryPool(sizeof(avl_node),5000);
+MemoryPool* tree_pool		= new MemoryPool(sizeof(rb_node),5000);
 
-void *avl_poolalloc (struct libavl_allocator *allocator, size_t size)
+void *rb_poolalloc (struct libavl_allocator *allocator, size_t size)
 {	return tree_pool->alloc(size);	}
-void avl_poolfree (struct libavl_allocator *allocator, void *block)
+void rb_poolfree (struct libavl_allocator *allocator, void *block)
 {	tree_pool->dealloc(block);		}
-struct libavl_allocator avl_allocator_pool =
-{	avl_poolalloc,avl_poolfree		};
+struct libavl_allocator rb_allocator_pool =
+{	rb_poolalloc,rb_poolfree		};
 
-struct avl_table* tree = avl_create(compare, NULL, &avl_allocator_pool);
+struct rb_table* tree = rb_create(compare, NULL, &rb_allocator_pool);
 
 bool find(const string& id){
 	string nullstr("");
 	Account tmp(id, nullstr);
-	return avl_find(tree, &tmp)==NULL;
+	return rb_find(tree, &tmp)==NULL;
 }
 /*
-void inorder_recommend(struct avl_node* node, Rank& r, const string& origin){
-	struct avl_node *stack[32];
+void inorder_recommend(struct rb_node* node, Rank& r, const string& origin){
+	struct rb_node *stack[32];
+	//stack[0] = node;
 	int size = 0;
-	while(size>0 || node) {
+	while(size>0||node) {
 		if(node) {
 			stack[size++] = node;
-			node = node->avl_link[0];		
+			node = node->rb_link[0];		
 		} else {
 			node = stack[--size];
-			r.update(((Account *)node->avl_data)->id, score(((Account *)node->avl_data)->id, origin));
-			node = node->avl_link[1];
+			r.update(((Account *)node->rb_data)->id, score(((Account *)node->rb_data)->id, origin));
+			node = node->rb_link[1];
 		}
 	}	
 }
 
-void inorder_wild(struct avl_node *node, vector<Account *>* v, const string& wild, const unsigned int& pos){
-	struct avl_node *stack[32];
+void inorder_wild(struct rb_node *node, vector<Account *>* v, const string& wild, const Account* current){
+	struct rb_node *stack[32];
+	//stack[0] = node;
 	int size = 0;
-	while(size>0 || node) {
+	while(size>0||node) {
 		if(node) {
 			stack[size++] = node;
-			node = node->avl_link[0];		
+			node = node->rb_link[0];
 		} else {
 			node = stack[--size];
-			if(match_wild(((Account *)node->avl_data)->id, wild))
-				v->push_back((Account *)node->avl_data);
-			node = node->avl_link[1];
+			if(match_wild(((Account *)node->rb_data)->id, wild) && node->rb_data!=current)
+				v->push_back((Account *)node->rb_data);
+			node = node->rb_link[1];
 		}
 	}
 }
+*/
+/*
 
-
-void inorder_wild(const struct avl_node *node, vector<Account *>* v, const string& wild, const unsigned int pos){
+void inorder_wild(const struct rb_node *node, vector<Account *>* v, const string& wild, const unsigned int pos){
  	if(node == NULL) return;
- 	const string &id = ((Account *)node->avl_data)->id;
+ 	const string &id = ((Account *)node->rb_data)->id;
 	const int ret = id.compare(0, pos<id.size()?pos:id.size(), wild, 0, pos<id.size()?pos:id.size());
-	if(node->avl_link[0] != NULL && ret >= 0)
- 		inorder_wild(node->avl_link[0], v, wild, pos);
+	if(node->rb_link[0] != NULL && ret >= 0)
+ 		inorder_wild(node->rb_link[0], v, wild, pos);
  	if(match_wild(id, wild))
-		v->push_back((Account *)node->avl_data);
- 	if(node->avl_link[1] != NULL && ret <= 0)
- 		inorder_wild(node->avl_link[1], v, wild, pos);
+		v->push_back((Account *)node->rb_data);
+ 	if(node->rb_link[1] != NULL && ret <= 0)
+ 		inorder_wild(node->rb_link[1], v, wild, pos);
 }
-
 */
 
-void inorder_recommend(const struct avl_node *node, Rank& r, const string& origin){
+void inorder_recommend(const struct rb_node *node, Rank& r, const string& origin){
 	if(node == NULL) return;
-	if(node->avl_link[0] != NULL)
-		inorder_recommend(node->avl_link[0], r, origin);
-	r.update(((Account *)node->avl_data)->id, score(((Account *)node->avl_data)->id, origin));
-	if(node->avl_link[1] != NULL)
-		inorder_recommend(node->avl_link[1], r, origin);
+	if(node->rb_link[0] != NULL)
+		inorder_recommend(node->rb_link[0], r, origin);
+	r.update(((Account *)node->rb_data)->id, score(((Account *)node->rb_data)->id, origin));
+	if(node->rb_link[1] != NULL)
+		inorder_recommend(node->rb_link[1], r, origin);
 }
 
-void inorder_wild(const struct avl_node *node, vector<Account *>* v, const string& wild){
+void inorder_wild(const struct rb_node *node, vector<Account *>* v, const string& wild, const Account* current){
 	if(node == NULL) return;
-	if(node->avl_link[0] != NULL)
-		inorder_wild(node->avl_link[0], v, wild);
-	if(match_wild(((Account *)node->avl_data)->id, wild))
-		v->push_back((Account *)node->avl_data);
-	if(node->avl_link[1] != NULL)
-		inorder_wild(node->avl_link[1], v, wild);
+	if(node->rb_link[0] != NULL)
+		inorder_wild(node->rb_link[0], v, wild, current);
+	if(match_wild(((Account *)node->rb_data)->id, wild) && node->rb_data!=current)
+		v->push_back((Account *)node->rb_data);
+	if(node->rb_link[1] != NULL)
+		inorder_wild(node->rb_link[1], v, wild, current);
 }
 
 int main(){
@@ -117,7 +119,7 @@ int main(){
 			cin>>id1>>p;
 			Account tmp(id1, nullstr);
 
-			Account* account = (Account *)avl_find(tree, &tmp);
+			Account* account = (Account *)rb_find(tree, &tmp);
 			if(account == NULL)
 				cout << "ID " << tmp.id << " not found" << endl;
 			else if(account->password.compare(md5(string(p))) != 0)
@@ -130,9 +132,9 @@ int main(){
 			cin>>id1>>p;
 			
 			Account tmp(id1, nullstr);
-			if(avl_find(tree, &tmp) == NULL){
+			if(rb_find(tree, &tmp) == NULL){
 				Account* account = new Account(*(new string(id1)), md5(p));
-				avl_probe(tree, account);
+				rb_probe(tree, account);
 				cout << "success" << endl;
 			}
 			else{
@@ -148,13 +150,13 @@ int main(){
 			cin>>id1>>p;
 			Account tmp (id1, nullstr);
 			
-			Account* account = (Account *)avl_find(tree, &tmp);
+			Account* account = (Account *)rb_find(tree, &tmp);
 			if(account == NULL)
 				cout << "ID " << tmp.id << " not found" << endl;
 			else if(account->password.compare(md5(string(p))) != 0)
 				cout << "wrong password" << endl;
 			else{
-				account = (Account *) avl_delete(tree, account);
+				account = (Account *) rb_delete(tree, account);
 				delete account;
 				cout << "success" << endl;
 			}
@@ -163,8 +165,8 @@ int main(){
 			Account tmp1(id1, nullstr);
 			Account tmp2(id2, nullstr);
 
-			Account* account1 = (Account *)avl_find(tree, &tmp1);
-			Account* account2 = (Account *)avl_find(tree, &tmp2);
+			Account* account1 = (Account *)rb_find(tree, &tmp1);
+			Account* account2 = (Account *)rb_find(tree, &tmp2);
 			if(account1 == NULL)
 				cout << "ID " << tmp1.id << " not found" << endl;
 			else if(account2 == NULL)
@@ -175,7 +177,7 @@ int main(){
 				cout << "wrong password2" << endl;
 			else{
 				account1->merge(account2);
-				account2 = (Account *) avl_delete(tree, account2);
+				account2 = (Account *) rb_delete(tree, account2);
 				delete account2;
 				cout << "success, " << account1->id << " has " << account1->money << " dollars" << endl;
 			}
@@ -195,12 +197,12 @@ int main(){
 			cin>>id1>>money;
 			Account tmp(id1, nullstr);
 
-			Account* account = (Account *)avl_find(tree, &tmp);
+			Account* account = (Account *)rb_find(tree, &tmp);
 			if(account == NULL){
 				cout << "ID " << tmp.id << " not found, ";
 				//recommend 10 existing IDs
 				Rank rank;
-				inorder_recommend(tree->avl_root, rank, tmp.id);
+				inorder_recommend(tree->rb_root, rank, tmp.id);
 				rank.print();
 			}
 			else if(money > current->money)
@@ -211,15 +213,14 @@ int main(){
 			}
 		}else if(strcmp(request, "find") == 0){
 			cin>>id1;
-			vector<Account *>* wild = new vector<Account *>;
-			inorder_wild(tree->avl_root, wild, id1);
-			if(wild->size() != 0){
-				cout << (*wild)[0]->id;
-				for(unsigned int i = 1; i < wild->size(); i++)
-					cout << ',' << (*wild)[i]->id;
+			vector<Account *> wild;
+			inorder_wild(tree->rb_root, &wild, id1, current);
+			if(wild.size() != 0){
+				cout << wild[0]->id;
+				for(unsigned int i = 1; i < wild.size(); i++)
+					cout << ',' << wild[i]->id;
 			}
 			cout << endl;
-			delete wild;
 		}else if(strcmp(request, "search") == 0){
 			cin>>id1;
 			current->search(id1);
