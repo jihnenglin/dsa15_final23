@@ -40,7 +40,6 @@ int main(){
 	string id1,id2,p,p2; // input id and password
 	long long int money; // input money
 	vector<Transfer*> transfer_log; //all transfer log
-	vector<string*> name_log;
 	
 	Account *current = NULL;
 	int time = 0;
@@ -67,8 +66,7 @@ int main(){
 			
 			it1 = accmap.find(id1);
 			if(it1 == accmap.end()){
-				name_log.push_back(new string(id1));
-				Account* account = new Account(*name_log.back(), md5(p));
+				Account* account = new Account(*(new string(id1)), md5(p));
 				accmap.insert({id1,account});
 				cout << "success" << endl;
 			}
@@ -160,6 +158,9 @@ int main(){
 		}else if(strcmp(request, "search") == 0){
 			cin>>id1;
 			current->search(id1);
+		}else if(strcmp(request, "log")==0) {
+			for(unsigned int i=0; i<transfer_log.size();i++)
+				cout << "From " << *(transfer_log[i]->from) << " To " << *(transfer_log[i]->to) << ' ' << transfer_log[i]->money <<"\n";		
 		}else{
 			cout << "error input\n";
 		}
