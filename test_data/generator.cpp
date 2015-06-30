@@ -7,16 +7,27 @@
 #include <time.h>
 
 #define SIZE 5000000
-
+//#define SIZE 10
 
 using namespace std;
+
+char toAlphaNum(long a) {
+	if(a<10)
+		return '0'+(char)a;
+	else if(a<36)
+		return 'A'+(char)(a-10);
+	else
+		return 'a'+(char)(a-36);
+}
+
+
 
 string itoa(long a) {
 	char buffer[100];
 	int i=0;
 	do {
-		buffer[i++] = '0'+a%10;
-		a /= 10;
+		buffer[i++] = toAlphaNum(a%62);
+		a /= 62;
 	}while(a>0);
 	string str;
 	while(i>0)
@@ -29,15 +40,7 @@ string random(long len) {
 	int  r,i;
 	for(i=0; i<len; i++) {
 		r = rand()%62;
-		if(r<10)
-			buffer[i] = '0'+(char)r;
-		else {
-			r-=26;
-			if(r<26)
-				buffer[i] = 'A'+(char)r;
-			else
-				buffer[i] = 'a'+(char)(r-26);
-		}
+		buffer[i]=toAlphaNum(r);
 	}
 	buffer[i] = 0;
 	return string(buffer);
@@ -45,6 +48,7 @@ string random(long len) {
 
 
 int main () {
+
 	srand(time(NULL));
 	std::vector<std::string> account;
 	std::string tmp;
@@ -57,7 +61,7 @@ int main () {
 	shuffle (account.begin(), account.end(), std::default_random_engine(seed));
 
 	for (std::string& x: account)
-		cout << "create" << x << ' ' << "pwd\n" ;
+		cout << "create " << x << ' ' << "pwd\n" ;
 	//std::cout << '\n';
 	return 0;
 }
