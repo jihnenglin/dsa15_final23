@@ -1,3 +1,5 @@
+#ifndef _POOL_
+#define _POOL
 #include <stdlib.h>
 
 class MemoryPool {
@@ -40,3 +42,4 @@ public:
 			free(p);	
 	}
 };
+#endif

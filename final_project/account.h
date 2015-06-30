@@ -2,8 +2,9 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
-#include "pool.h"
-
+#ifdef POOL
+	#include "pool.h"
+#endif
 #define in 1
 #define out 0
 
@@ -44,9 +45,11 @@ public:
 		else
 			return false;
 	}
+#ifdef POOL
 	static MemoryPool *pool;
 	static void *operator new(size_t size) { return pool->alloc(size); }
 	static void operator delete(void *p)	{ pool->dealloc(p);	}
+#endif
 };
 
 //Only move the money and history of a2 to a1. The change of history and the deletion of a2 need to be performed by yourself.

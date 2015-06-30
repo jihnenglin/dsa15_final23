@@ -23,17 +23,19 @@ int compare(const void *pa, const void *pb, void *param){
 	else
 		return 0;
 }
+#ifdef POOL
 MemoryPool* Account::pool	= new MemoryPool(sizeof(Account),5000);
 MemoryPool* tree_pool		= new MemoryPool(sizeof(bst_node),5000);
-
 void *bst_poolalloc (struct libavl_allocator *allocator, size_t size)
 {	return tree_pool->alloc(size);	}
 void bst_poolfree (struct libavl_allocator *allocator, void *block)
 {	tree_pool->dealloc(block);		}
 struct libavl_allocator bst_allocator_pool =
 {	bst_poolalloc,bst_poolfree		};
-
 struct bst_table* tree = bst_create(compare, NULL, &bst_allocator_pool);
+#else
+struct bst_table* tree = bst_create(compare, NULL, NULL);
+#endif
 
 int search(vector<History*>* history, int& time){
 	int left = 0, right = (int) (*history).size() - 1;

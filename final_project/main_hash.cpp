@@ -9,8 +9,9 @@
 #define MAXL 105
 
 using namespace std;
-
-MemoryPool* Account::pool	= new MemoryPool(sizeof(Account),5003);
+#ifdef POOL
+MemoryPool* Account::pool = new MemoryPool(sizeof(Account),5000);
+#endif
 typedef std::unordered_map<std::string,Account*> Accmap;
 Accmap accmap;
 

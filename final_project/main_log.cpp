@@ -19,6 +19,7 @@ int compare(const void *pa, const void *pb, void *param){
 	else
 		return 0;
 }
+#ifdef POOL
 MemoryPool* Account::pool	= new MemoryPool(sizeof(Account),5000);
 MemoryPool* tree_pool		= new MemoryPool(sizeof(rb_node),5000);
 
@@ -28,62 +29,16 @@ void rb_poolfree (struct libavl_allocator *allocator, void *block)
 {	tree_pool->dealloc(block);		}
 struct libavl_allocator rb_allocator_pool =
 {	rb_poolalloc,rb_poolfree		};
-
 struct rb_table* tree = rb_create(compare, NULL, &rb_allocator_pool);
+#else
+struct rb_table* tree = rb_create(compare, NULL, NULL);
+#endif
 
 bool find(const string& id){
 	string nullstr("");
 	Account tmp(id, nullstr);
 	return rb_find(tree, &tmp)==NULL;
 }
-/*
-void inorder_recommend(struct rb_node* node, Rank& r, const string& origin){
-	struct rb_node *stack[32];
-	//stack[0] = node;
-	int size = 0;
-	while(size>0||node) {
-		if(node) {
-			stack[size++] = node;
-			node = node->rb_link[0];		
-		} else {
-			node = stack[--size];
-			r.update(((Account *)node->rb_data)->id, score(((Account *)node->rb_data)->id, origin));
-			node = node->rb_link[1];
-		}
-	}	
-}
-
-void inorder_wild(struct rb_node *node, vector<Account *>* v, const string& wild, const Account* current){
-	struct rb_node *stack[32];
-	//stack[0] = node;
-	int size = 0;
-	while(size>0||node) {
-		if(node) {
-			stack[size++] = node;
-			node = node->rb_link[0];
-		} else {
-			node = stack[--size];
-			if(match_wild(((Account *)node->rb_data)->id, wild) && node->rb_data!=current)
-				v->push_back((Account *)node->rb_data);
-			node = node->rb_link[1];
-		}
-	}
-}
-*/
-/*
-
-void inorder_wild(const struct rb_node *node, vector<Account *>* v, const string& wild, const unsigned int pos){
- 	if(node == NULL) return;
- 	const string &id = ((Account *)node->rb_data)->id;
-	const int ret = id.compare(0, pos<id.size()?pos:id.size(), wild, 0, pos<id.size()?pos:id.size());
-	if(node->rb_link[0] != NULL && ret >= 0)
- 		inorder_wild(node->rb_link[0], v, wild, pos);
- 	if(match_wild(id, wild))
-		v->push_back((Account *)node->rb_data);
- 	if(node->rb_link[1] != NULL && ret <= 0)
- 		inorder_wild(node->rb_link[1], v, wild, pos);
-}
-*/
 
 void inorder_recommend(const struct rb_node *node, Rank& r, const string& origin){
 	if(node == NULL) return;

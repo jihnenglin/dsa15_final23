@@ -11,8 +11,9 @@
 
 typedef std::vector<Account*> Datas;
 Datas list;
-MemoryPool* Account::pool = new MemoryPool(sizeof(Account),5003);
-
+#ifdef POOL
+MemoryPool* Account::pool = new MemoryPool(sizeof(Account),5000);
+#endif
 using namespace std;
 
 int search(vector<History*>* history, int& time){

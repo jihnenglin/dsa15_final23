@@ -8,7 +8,7 @@ STRUCT3 = main_log
 STRUCT4 = main_hash
 STRUCT5 = main_bst
 STRUCT6 = main_rb
-TARGET = $(STRUCT3)
+TARGET = $(STRUCT6)
 OBJ1 = avl.o main.o md5.o
 OBJ2 = main_vector.o md5.o
 OBJ3 = rb.o main_log.o md5.o
@@ -17,6 +17,7 @@ OBJ5 = bst.o main_bst.o md5.o
 OBJ6 = rb.o main_rb.o md5.o
 OBJS = $(OBJ1) $(OBJ2) $(OBJ3) $(OBJ4) $(OBJ5) $(OBJ6)
 DEBUG = -DD_INPUT
+POOL = -DPOOL
 
 RM = rm -rf
 
@@ -38,10 +39,10 @@ $(STRUCT6): $(OBJ6)
 	$(CPP) $(CPPFLAGS) $(OBJ6) -o $@ 
 	
 %.o: %.c
-	$(CC) $(CFLAGS) $(DEBUG) $< -c
+	$(CC) $(CFLAGS) $(DEBUG) $(POOL) $< -c
 
 %.o: %.cpp
-	$(CPP) $(CPPFLAGS) $(DEBUG) $< -c
+	$(CPP) $(CPPFLAGS) $(DEBUG) $(POOL) $< -c
 
 run:
 	time ./$(TARGET) <../test_data/test_in.txt >../test_data/out.txt
