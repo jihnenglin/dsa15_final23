@@ -10,7 +10,7 @@
 #define LINE_DELETE		0
 #define LINE_RAND_CD	10000//100000
 #define LINE_TRANSFER 	10000//200000
-#define LINE_MERGE		0//10000
+#define LINE_MERGE		5000//10000
 #define LINE_FIND		10000
 //#define SIZE 10
 
@@ -76,8 +76,8 @@ int main () {
 	/*random walk of create and delete*/	
 	std::vector<char> action;
 	for(long i=0; i<(LINE_RAND_CD/2);i++) {
-		action.push_back('0');
-		action.push_back('1');
+		action.push_back(0);
+		action.push_back(1);
 	}
 	random_shuffle(account.begin(), account.end());
 	random_shuffle(action.begin(), action.end());
@@ -104,6 +104,7 @@ int main () {
 		cout<< "login " << account.back() << ' ' << "pwd\n";
 		cout<< "deposit "<<money <<'\n'; 
 		cout<< "transfer "<<account[pos]<<" 1" << "\n";
+		swap(account.back(),account[rand()%account.size()]);
 	}
 	/*merge all*/
 	for(long i=0; i<LINE_MERGE; i++) {
