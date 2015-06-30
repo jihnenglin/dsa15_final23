@@ -1,6 +1,7 @@
 #ifndef _POOL_
 #define _POOL
 #include <stdlib.h>
+//#include <stdio.h>
 
 class MemoryPool {
 	size_t unit_size;
@@ -29,15 +30,19 @@ public:
 			free(memblock);			
 	}
 	void* alloc(size_t size) {
-		if(size<=unit_size&&curr>0) //pool is still available
+		if(size<=unit_size&&curr>0) { //pool is still available
+			//fprintf(stderr,"pool alloc %d\n",curr);
 			return elements[--curr];
+		}
 		else  //allocate using system call
 			return malloc(size);
 	}
 	void dealloc(void *p) {
 		
-		if(memblock<=p && p<(void*)((char*)memblock+block_size))
+		if(memblock<=p && p<(void*)((char*)memblock+block_size)) {
+			//fprintf(stderr,"pool free %d\n",curr);
 			elements[curr++] = p;//in the range of memory block
+		}
 		else
 			free(p);	
 	}

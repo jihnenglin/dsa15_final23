@@ -11,6 +11,8 @@
 using namespace std;
 #ifdef POOL
 MemoryPool* Account::pool = new MemoryPool(sizeof(Account),5000);
+//char membuffer[sizeof(Account)*100000];
+//MemoryPool* Account::pool = new MemoryPool(sizeof(Account),sizeof(membuffer),(void*)membuffer);
 #endif
 typedef std::unordered_map<std::string,Account*> Accmap;
 Accmap accmap;
@@ -120,9 +122,11 @@ int main(){
 				else if(account2->password.compare(md5(p2)) != 0)
 					cout << "wrong password2" << endl;
 				else{
-					account1->merge(account2);
-					delete account2;
-					accmap.erase(it2);
+					if(account1!=account2) {
+						account1->merge(account2);
+						delete account2;
+						accmap.erase(it2);
+					}
 					cout << "success, " << account1->id << " has " << account1->money << " dollars" << endl;
 				}
 			}

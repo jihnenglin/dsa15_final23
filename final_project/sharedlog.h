@@ -69,6 +69,7 @@ Transfer* Account::transfer(Account *that, long long int _money, int _time) {
 }
 
 void Account::merge(Account *a2) {
+	
 	this->money += a2->money;
 	
 	int i,j;

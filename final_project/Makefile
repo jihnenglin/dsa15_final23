@@ -21,7 +21,7 @@ POOL = -DPOOL
 
 RM = rm -rf
 
-.PHONY: run1 run2 clean cleanall
+.PHONY: run clean cleanall
 
 all: $(STRUCT1) $(STRUCT2) $(STRUCT3) $(STRUCT4) $(STRUCT5) $(STRUCT6)
 
@@ -45,8 +45,22 @@ $(STRUCT6): $(OBJ6)
 	$(CPP) $(CPPFLAGS) $(DEBUG) $(POOL) $< -c
 
 run:
-	time ./$(TARGET) <../test_data/test_in.txt >../test_data/out.txt
-
+	time ./$(TARGET) <../test_data/test_in.txt >../test_data/out.txt	
+run1:
+	time ./$(STRUCT1) <../test_data/test_in.txt >../test_data/out.txt
+run2:
+	time ./$(STRUCT2) <../test_data/test_in.txt >../test_data/out.txt
+run3:
+	time ./$(STRUCT3) <../test_data/test_in.txt >../test_data/out.txt
+run4:
+	time ./$(STRUCT4) <../test_data/test_in.txt >../test_data/out.txt
+run5:
+	time ./$(STRUCT5) <../test_data/test_in.txt >../test_data/out.txt
+run6:
+	time ./$(STRUCT6) <../test_data/test_in.txt >../test_data/out.txt
+	
+	
+	
 cleanall:
 	$(RM) $(STRUCT1) $(STRUCT2) $(STRUCT3) $(STRUCT4) $(STRUCT5) $(STRUCT6)
 	$(RM) $(OBJS)
