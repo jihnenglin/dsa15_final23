@@ -48,7 +48,7 @@ int main(){
 	int time = 0;
 	
 	Accmap::const_iterator it1,it2;
-	accmap.max_load_factor(0.8);
+	accmap.max_load_factor(0.5);
 	accmap.reserve(5003);
 
 	while(scanf("%s", request) != EOF){

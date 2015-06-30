@@ -6,13 +6,15 @@
 
 #define MAXL  100
 #define SIZE 			10000//10000
-#define LINE_RAND_CD 	0//100000
-#define LINE_TRANSFER 	0//200000
-#define LINE_MERGE 		0//10000
-#define LINE_FIND       10000
+
+#define LINE_DELETE		0
+#define LINE_RAND_CD	10000//100000
+#define LINE_TRANSFER 	10000//200000
+#define LINE_MERGE		0//10000
+#define LINE_FIND		10000
 //#define SIZE 10
 
-const std::string find_wildcard("*");
+const std::string find_wildcard("");
 
 using namespace std;
 
@@ -64,29 +66,35 @@ int main () {
 	for(std::string& x: account)
 		cout << "create " << x << ' ' << "pwd\n" ;
 	
-	/* delete SIZE account 
+	/* delete SIZE account */
 	random_shuffle(account.begin(), account.end());
-	for(long i=0; i<SIZE; i++) {
+	for(long i=0; i<LINE_DELETE; i++) {
 		cout << "delete " << account.back() << ' ' << "pwd\n" ;
 			account.pop_back();
-	}*/
+	}	
 	
-	
-	/*random walk of create and delete
+	/*random walk of create and delete*/	
+	std::vector<char> action;
+	for(long i=0; i<(LINE_RAND_CD/2);i++) {
+		action.push_back('0');
+		action.push_back('1');
+	}
 	random_shuffle(account.begin(), account.end());
-	for(long i=0; i<LINE_RAND_CD; i++) {
-		if(rand()%2 && account.size()>0) {
-			swap(account.back(),account[rand()%account.size()]);
-			cout << "delete " << account.back() << ' ' << "pwd\n" ;
-			account.pop_back();
-		}
-		else {
-			tmp = random(rand()%MAXL+1);
-			account.push_back(tmp);
-			cout << "create " << account.back() << ' ' << "pwd\n" ;
+	random_shuffle(action.begin(), action.end());
+	for(unsigned int i=0; i<action.size(); i++) {
+		switch(action[i]) {
+			case 0:
+				if(account.size()==0) break;
+				swap(account.back(),account[rand()%account.size()]);
+				cout << "delete " << account.back() << ' ' << "pwd\n" ;
+				account.pop_back();break;
+			case 1:
+				tmp = random(rand()%MAXL+1);
+				account.push_back(tmp);
+				cout << "create " << account.back() << ' ' << "pwd\n" ;
+				break;		
 		}
 	}
-	*/
 	
 	/*transfer*/
 	int pos;
@@ -98,7 +106,6 @@ int main () {
 		cout<< "transfer "<<account[pos]<<" 1" << "\n";
 	}
 	/*merge all*/
-	
 	for(long i=0; i<LINE_MERGE; i++) {
 		if(account.size()<2) break;
 		pos = rand()%(account.size()-1);
