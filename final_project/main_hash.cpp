@@ -10,7 +10,7 @@
 
 using namespace std;
 #ifdef POOL
-MemoryPool* Account::pool = new MemoryPool(sizeof(Account),5000);
+MemoryPool* Account::pool = new MemoryPool(sizeof(Account),1000);
 //char membuffer[sizeof(Account)*100000];
 //MemoryPool* Account::pool = new MemoryPool(sizeof(Account),sizeof(membuffer),(void*)membuffer);
 #endif
@@ -26,11 +26,74 @@ void inorder_recommend(const Accmap &accmap, Rank& r, const string& origin){
 		r.update(it->first,score(it->first,origin));
 }
 
+inline void char_plus(char & c, char e) {
+	do {
+		if(c=='9')
+			c = 'A';
+		else if(c=='Z')
+			c = 'a';
+		else
+			++c;
+	}while(c==e);
+}
+
 void inorder_wild(Account *current, vector<Account *>* v, const string& wild){
-	for(Accmap::const_iterator it = accmap.begin(); it!=accmap.end(); ++it) {
-		if(match_wild(it->first, wild)&&it->second!=current)
-			v->push_back(it->second);
+	Accmap::const_iterator it;
+	unsigned int c_star,c_quest,minlen;
+	unsigned int start;
+	c_star = c_quest = 0;
+	for(unsigned int i=0; i<wild.length();i++) {
+		if(wild[i]=='*') c_star++;
+		else if(wild[i]=='?') { c_quest++;start=i; }
 	}
+	minlen = wild.length() - c_star; //minimum matched string length
+	if(c_star==0) {
+		if(c_quest==0) {
+			it = accmap.find(wild);
+			if(match_wild(it->first, wild)&&it->second!=current)
+				v->push_back(it->second);
+			return;
+		}
+		else if(c_quest<5 && (1<<(c_quest*7))<accmap.size()) {
+			//fprintf(stderr,"%d %d\n",1<<(c_quest*6),accmap.size());
+			std::string str;
+			str.resize(wild.length());
+			unsigned int i;
+			for(i=0; i<wild.length(); i++) {
+				if(wild[i]!='?')
+					str[i] = wild[i];
+				else
+					str[i] = wild[i]=='0' ? '1' : '0' ;
+			}
+			while(true) {
+				//fprintf(stderr,"%s\n",str.c_str());
+				it = accmap.find(str);
+				if(it!=accmap.end()&&it->second!=current)
+					v->push_back(it->second);
+				i = start;
+				char_plus(str[i],wild[i]);
+				
+				while(str[i] > 'z') {
+					str[i] = wild[i]=='0' ? '1' : '0' ;
+					do
+						if(i<=0) return;
+					while(wild[--i]!='?');
+					char_plus(str[i],wild[i]);
+				}
+			}
+		}
+		else {
+			for(it = accmap.begin(); it!=accmap.end(); ++it)
+				if(it->first.length()==minlen&&match_wild(it->first, wild)&&it->second!=current)
+					v->push_back(it->second);
+			return;
+		}
+	}
+	
+	for(it = accmap.begin(); it!=accmap.end(); ++it)
+		if(it->first.length()>=minlen&&match_wild(it->first, wild)&&it->second!=current)
+				v->push_back(it->second);
+	
 }
 
 bool accptrcmp(Account *a1,Account *a2) {

@@ -5,13 +5,14 @@
 #include <cstdlib>
 
 #define MAXL  100
-#define SIZE 			10000//10000
-
-#define LINE_DELETE		0
-#define LINE_RAND_CD	10000//100000
-#define LINE_TRANSFER 	10000//200000
-#define LINE_MERGE		5000//10000
-#define LINE_FIND		10000
+#define SIZE 			1000//10000
+#define LINE_DELETE		500
+#define LINE_RAND_CD	500//100000
+#define LINE_CREATE_R	100
+#define LINE_TRANSFER 	1000//200000
+#define LINE_TRANSFER_R 500
+#define LINE_MERGE		400//10000
+#define LINE_FIND		500
 //#define SIZE 10
 
 const std::string find_wildcard("");
@@ -96,6 +97,10 @@ int main () {
 		}
 	}
 	
+	for(long i=0;i<(LINE_CREATE_R);i++) {
+		cout << "create " << account[rand()%account.size()] << ' ' << "pwd\n" ;
+	}	
+	
 	/*transfer*/
 	int pos;
 	int money = 1;
@@ -106,7 +111,16 @@ int main () {
 		cout<< "transfer "<<account[pos]<<" 1" << "\n";
 		swap(account.back(),account[rand()%account.size()]);
 	}
-	/*merge all*/
+	/*transfer recommend*/
+	for(long i=0; i<LINE_TRANSFER_R; i++) {
+		pos = rand()%(account.size()-1);
+		cout<< "login " << account.back() << ' ' << "pwd\n";
+		cout<< "deposit "<<money <<'\n';
+		cout<< "transfer "<<random(rand()%100+1)<<" 1" << "\n";
+		swap(account.back(),account[rand()%account.size()]);	
+	}	
+	
+	/*merge*/
 	for(long i=0; i<LINE_MERGE; i++) {
 		if(account.size()<2) break;
 		pos = rand()%(account.size()-1);
@@ -120,15 +134,16 @@ int main () {
 	}
 	
 	/*find*/
-	cout<< "login " << account.front() << ' ' << "pwd\n";
+	if(LINE_FIND>0)
+		cout<< "login " << account.front() << ' ' << "pwd\n";
 	if(find_wildcard.size()==0) {
 		for(long i=0; i<LINE_FIND; i++) {
 			bool star_able = true;
-			tmp = random(rand()%101);
+			tmp = random(rand()%4);
 			//cout<<"origin "<<tmp<<"\n";
 			for(unsigned int j=0; j<tmp.size();j++) {
-				if(rand()%2) {
-					if(star_able&&rand()%2){
+				if(!(rand()%4)) {
+					if(star_able&&!(rand()%4)){
 						tmp.insert(j,"*");
 						j++;//position+1
 					}
@@ -140,7 +155,7 @@ int main () {
 					star_able = true;				
 				}		
 			}
-			if(tmp.size()==0||(star_able&&rand()%2))
+			if(tmp.size()==0||(star_able&&!(rand()%4)))
 				tmp += '*';
 			cout<<"find "<<tmp<<"\n";	
 		}
