@@ -61,6 +61,7 @@ void inorder_wild(const struct rb_node *node, vector<Account *>* v, const string
 
 int main(){
 	char request[MAXL]; 
+	char buf[4][MAXL];
 	string id1,id2,p,p2; // input id and password
 	long long int money; // input money
 	vector<Transfer*> transfer_log; //all transfer log
@@ -71,7 +72,10 @@ int main(){
 
 	while(scanf("%s", request) != EOF){
 		if(strcmp(request, "login") == 0){
-			cin>>id1>>p;
+			//cin>>id1>>p;
+			scanf("%s%s",buf[0],buf[1]);
+			id1 = string(buf[0]);
+			p   = string(buf[1]);
 			Account tmp(id1, nullstr);
 
 			Account* account = (Account *)rb_find(tree, &tmp);
@@ -83,9 +87,12 @@ int main(){
 				current = account;
 				cout << "success" << endl;
 			}
+		
 		}else if(strcmp(request, "create") == 0){
-			cin>>id1>>p;
-			
+			//cin>>id1>>p;
+			scanf("%s%s",buf[0],buf[1]);
+			id1 = string(buf[0]);
+			p   = string(buf[1]);
 			Account tmp(id1, nullstr);
 			if(rb_find(tree, &tmp) == NULL){
 				Account* account = new Account(*(new string(id1)), md5(p));
@@ -102,7 +109,10 @@ int main(){
 			}
 
 		}else if(strcmp(request, "delete") == 0){			
-			cin>>id1>>p;
+			//cin>>id1>>p;
+			scanf("%s%s",buf[0],buf[1]);
+			id1 = string(buf[0]);
+			p   = string(buf[1]);
 			Account tmp (id1, nullstr);
 			
 			Account* account = (Account *)rb_find(tree, &tmp);
@@ -116,7 +126,12 @@ int main(){
 				cout << "success" << endl;
 			}
 		}else if(strcmp(request, "merge") == 0){
-			cin>>id1>>p>>id2>>p2;
+			//cin>>id1>>p>>id2>>p2;
+			scanf("%s%s%s%s",buf[0],buf[1],buf[2],buf[3]);
+			id1 = string(buf[0]);
+			p   = string(buf[1]);
+			id2 = string(buf[2]);
+			p2  = string(buf[3]);
 			Account tmp1(id1, nullstr);
 			Account tmp2(id2, nullstr);
 
@@ -137,11 +152,13 @@ int main(){
 				cout << "success, " << account1->id << " has " << account1->money << " dollars" << endl;
 			}
 		}else if(strcmp(request, "deposit") == 0){
-			cin>>money;
+			//cin>>money;
+			scanf("%lld",&money);
 			current->money += money;
 			cout << "success, " << current->money << " dollars in current account" << endl;
 		}else if(strcmp(request, "withdraw") == 0){
-			cin>>money;
+			//cin>>money;
+			scanf("%lld",&money);
 			if(money > current->money)
 				cout << "fail, " << current->money << " dollars only in current account" << endl;
 			else{
@@ -149,9 +166,11 @@ int main(){
 				cout << "success, " << current->money << " dollars left in current account" << endl;
 			}
 		}else if(strcmp(request, "transfer") == 0){
-			cin>>id1>>money;
+			//cin>>id1>>money;
+			scanf("%s%lld",buf[0],&money);
+			id1 = string(buf[0]);
+			
 			Account tmp(id1, nullstr);
-
 			Account* account = (Account *)rb_find(tree, &tmp);
 			if(account == NULL){
 				cout << "ID " << tmp.id << " not found, ";
@@ -167,7 +186,9 @@ int main(){
 				cout << "success, " << current->money << " dollars left in current account" << endl;
 			}
 		}else if(strcmp(request, "find") == 0){
-			cin>>id1;
+			//cin>>id1;
+			scanf("%s",buf[0]);
+			id1 = string(buf[0]);
 			vector<Account *> wild;
 			inorder_wild(tree->rb_root, &wild, id1, current);
 			if(wild.size() != 0){
@@ -177,11 +198,17 @@ int main(){
 			}
 			cout << endl;
 		}else if(strcmp(request, "search") == 0){
-			cin>>id1;
+			//cin>>id1;
+			scanf("%s",buf[0]);
+			id1 = string(buf[0]);
 			current->search(id1);
+		}else if(strcmp(request, "log")==0) {
+			for(unsigned int i=0; i<transfer_log.size();i++)
+				cout << "From " << *(transfer_log[i]->from) << " To " << *(transfer_log[i]->to) << ' ' << transfer_log[i]->money <<"\n";		
 		}else{
 			cout << "error input\n";
 		}
+		
 	}
 	return 0;
 }

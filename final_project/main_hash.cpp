@@ -37,7 +37,7 @@ bool accptrcmp(Account *a1,Account *a2) {
 
 
 int main(){
-	char request[MAXL]; 
+	char request[MAXL],buf[4][MAXL]; 
 	string id1,id2,p,p2; // input id and password
 	long long int money; // input money
 	vector<Transfer*> transfer_log; //all transfer log
@@ -51,19 +51,23 @@ int main(){
 
 	while(scanf("%s", request) != EOF){
 		if(strcmp(request, "login") == 0){
-			cin>>id1>>p;
+			scanf("%s%s",buf[0],buf[1]);
+			id1 = string(buf[0]);
+			p   = string(buf[1]);
 			
 			it1 = accmap.find(id1);
 			if(it1 == accmap.end())
 				cout << "ID " << id1 << " not found" << endl;
-			else if(it1->second->password.compare(md5(string(p))) != 0)
+			else if(it1->second->password.compare(md5(p)) != 0)
 				cout << "wrong password" << endl;
 			else{
 				current = it1->second;
 				cout << "success" << endl;
 			}
 		}else if(strcmp(request, "create") == 0){
-			cin>>id1>>p;
+			scanf("%s%s",buf[0],buf[1]);
+			id1 = string(buf[0]);
+			p   = string(buf[1]);
 			
 			it1 = accmap.find(id1);
 			if(it1 == accmap.end()){
@@ -81,12 +85,14 @@ int main(){
 			}
 
 		}else if(strcmp(request, "delete") == 0){			
-			cin>>id1>>p;
+			scanf("%s%s",buf[0],buf[1]);
+			id1 = string(buf[0]);
+			p   = string(buf[1]);
 			
 			it1 = accmap.find(id1);
 			if(it1 == accmap.end())
 				cout << "ID " << id1 << " not found" << endl;
-			else if(it1->second->password.compare(md5(string(p))) != 0)
+			else if(it1->second->password.compare(md5(p)) != 0)
 				cout << "wrong password" << endl;
 			else{
 				delete it1->second;
@@ -94,7 +100,11 @@ int main(){
 				cout << "success" << endl;
 			}
 		}else if(strcmp(request, "merge") == 0){
-			cin>>id1>>p>>id2>>p2;
+			scanf("%s%s%s%s",buf[0],buf[1],buf[2],buf[3]);
+			id1 = string(buf[0]);
+			p   = string(buf[1]);
+			id2 = string(buf[2]);
+			p2  = string(buf[3]);
 
 			it1 = accmap.find(id1);
 			it2 = accmap.find(id2);
@@ -117,11 +127,11 @@ int main(){
 				}
 			}
 		}else if(strcmp(request, "deposit") == 0){
-			cin>>money;
+			scanf("%lld",&money);
 			current->money += money;
 			cout << "success, " << current->money << " dollars in current account" << endl;
 		}else if(strcmp(request, "withdraw") == 0){
-			cin>>money;
+			scanf("%lld",&money);
 			if(money > current->money)
 				cout << "fail, " << current->money << " dollars only in current account" << endl;
 			else{
@@ -129,8 +139,9 @@ int main(){
 				cout << "success, " << current->money << " dollars left in current account" << endl;
 			}
 		}else if(strcmp(request, "transfer") == 0){
-			cin>>id1>>money;
-	
+			scanf("%s%lld",buf[0],&money);
+			id1 = string(buf[0]);
+			
 			it1 = accmap.find(id1);
 			if(it1 == accmap.end()){
 				cout << "ID " << id1 << " not found, ";
@@ -146,7 +157,8 @@ int main(){
 				cout << "success, " << current->money << " dollars left in current account" << endl;
 			}
 		}else if(strcmp(request, "find") == 0){
-			cin>>id1;
+			scanf("%s",buf[0]);
+			id1 = string(buf[0]);
 			vector<Account *> wild;
 			inorder_wild(current, &wild, id1);
 			std::sort(wild.begin(),wild.end(),accptrcmp);
@@ -157,7 +169,8 @@ int main(){
 			}
 			cout << endl;
 		}else if(strcmp(request, "search") == 0){
-			cin>>id1;
+			scanf("%s",buf[0]);
+			id1 = string(buf[0]);
 			current->search(id1);
 		}else if(strcmp(request, "log")==0) {
 			for(unsigned int i=0; i<transfer_log.size();i++)
